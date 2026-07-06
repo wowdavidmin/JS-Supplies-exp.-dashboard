@@ -16,6 +16,7 @@
         --line: #e5e7eb;
         --green: #059669;
         --red: #dc2626;
+        --highlight: #fefce8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -90,6 +91,8 @@
     
     .note-box { font-size: 11.5px; color: var(--ink); margin-top: 12px; line-height: 1.6; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb; }
     .note-box b { color: var(--navy); }
+    
+    .compact-table th, .compact-table td { padding: 4px 6px; font-size: 11px; }
     
     @media(max-width:1024px){ .grid2, .grid-detail { grid-template-columns: 1fr; } .charts-wrapper { flex-direction: column; } .pie-box { width: 100%; height: 200px; margin-bottom: 20px;} }
 </style>
@@ -243,7 +246,7 @@
 
         <div class="panel" style="overflow:auto">
             <h3>비용 상세 실적 (카테고리 및 성격별 분류 추이)</h3>
-            <table>
+            <table class="compact-table">
                 <thead>
                     <tr>
                         <th class="l">비용 구분</th>
@@ -259,6 +262,11 @@
                     </tbody>
             </table>
             
+            <h3 style="font-size: 12px; margin: 15px 0 5px 0; color:var(--muted);">월별 비용 발생 추이 및 전체 누적 합계 (단위: $1,000)</h3>
+            <div class="chart-container" style="height: 220px; width: 100%;">
+                <canvas id="trendChart"></canvas>
+            </div>
+
             <div class="note-box">
                 <b>※ 비용 성격별 구체적 포함 항목 (엑셀 Description 기준)</b><br>
                 • <b>변동비 (생산 비례):</b> 봉제반소모품(바늘, 노루발), 재단소모품(고무판), 품질검사(QC/QA) 소모품, 포장자재, 염색/기모 소모품 등<br>
@@ -270,11 +278,11 @@
 </div>
 
 <div class="foot">
-    데이터 기준일: 2026년 05월 마감 Raw Data · 비용 성격 분류 데이터 맵핑(변동/고정/자본적) 탑재 버전
+    데이터 기준일: 2026년 05월 마감 Raw Data · 막대그래프(월별 추이, 전체 법인 비교) 금액 및 % 비율 라벨 동시 표기 적용 버전
 </div>
 
 <script>
-    // Plugin to draw percentages inside Doughnut charts
+    // Plugin 1: Doughnut chart percentages
     Chart.register({
         id: 'percentLabels',
         afterDraw(chart) {
@@ -301,6 +309,76 @@
             });
         }
     });
+
+    // Plugin 2: Universal Data Labels for Bar and Line Charts (Upgraded to include %)
+    const universalLabelsPlugin = {
+        id: 'universalLabels',
+        afterDatasetsDraw(chart) {
+            const ctx = chart.ctx;
+            ctx.textAlign = 'center';
+            
+            chart.data.datasets.forEach((dataset, i) => {
+                const meta = chart.getDatasetMeta(i);
+                if (meta.hidden) return;
+                
+                meta.data.forEach((element, index) => {
+                    const val = dataset.data[index];
+                    if (val === undefined || val === null || val === 0) return;
+                    
+                    let text = '';
+                    const chartId = chart.canvas.id;
+                    
+                    if (chartId === 'ratioChart') {
+                        if (dataset.type === 'line') {
+                            text = val.toFixed(2) + '%';
+                        } else {
+                            text = '$' + val.toFixed(3);
+                        }
+                    } else { 
+                        // costChart & trendChart: Calculate segment percentage for stacked bars
+                        if (dataset.type === 'line') {
+                            text = Math.round(val/1000) + 'k';
+                        } else {
+                            let stackTotal = 0;
+                            chart.data.datasets.forEach((ds, dsIdx) => {
+                                const dsMeta = chart.getDatasetMeta(dsIdx);
+                                if (!dsMeta.hidden && (ds.type === 'bar' || ds.type === undefined)) {
+                                    stackTotal += (ds.data[index] || 0);
+                                }
+                            });
+                            const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
+                            text = Math.round(val/1000) + 'k (' + pct + ')';
+                        }
+                    }
+                    
+                    // Render Line Chart Label
+                    if (dataset.type === 'line') {
+                        ctx.fillStyle = dataset.borderColor || '#dc2626';
+                        ctx.font = 'bold 10px "Malgun Gothic"';
+                        ctx.textBaseline = 'bottom';
+                        const pos = element.tooltipPosition();
+                        ctx.fillText(text, pos.x, pos.y - 6);
+                    } 
+                    // Render Bar Chart Label
+                    else { 
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 9.5px "Malgun Gothic"'; 
+                        ctx.textBaseline = 'middle';
+                        const pos = element.tooltipPosition();
+                        const yCenter = (element.base + element.y) / 2;
+                        
+                        // Only draw if the bar is tall enough to fit the text without overflowing
+                        if (Math.abs(element.base - element.y) > 16) {
+                            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                            ctx.shadowBlur = 3;
+                            ctx.fillText(text, pos.x, yCenter);
+                            ctx.shadowBlur = 0;
+                        }
+                    }
+                });
+            });
+        }
+    };
 
     // Global Data Definitions matching exact specifications
     const factoryData = {
@@ -343,8 +421,9 @@
 
     let detailPieChart = null;
     let detailClassChart = null;
+    let detailTrendChart = null;
 
-    // Main Chart Rendering with New Order: JSV, JSB, JSV&JSB, JSP, JSJ
+    // Main Chart 1: Cost Comparison (now with universalLabelsPlugin % support)
     const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
     Chart.defaults.color = '#475569';
     
@@ -361,10 +440,13 @@
         },
         options: {
             responsive: true, maintainAspectRatio: false,
-            scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: v => '$' + (v/1000) + 'k' } } }
-        }
+            scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: v => '$' + (v/1000) + 'k' } } },
+            plugins: { legend: { position: 'top' } }
+        },
+        plugins: [universalLabelsPlugin]
     });
 
+    // Main Chart 2: Ratio Comparison
     const ratioCtx = document.getElementById('ratioChart').getContext('2d');
     new Chart(ratioCtx, {
         data: {
@@ -379,8 +461,10 @@
             scales: {
                 y: { type: 'linear', position: 'left', ticks: { callback: v => '$' + v } },
                 y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: v => v + '%' } }
-            }
-        }
+            },
+            plugins: { legend: { position: 'top' } }
+        },
+        plugins: [universalLabelsPlugin]
     });
 
     // Distribute Total into 5 Months array
@@ -452,7 +536,41 @@
 
         document.getElementById('detailTableBody').innerHTML = html;
 
-        // Chart 1: Category
+        // 누적 합계 배열 생성 (Month 1 -> Month 1+2 -> ...)
+        let currentCum = 0;
+        const cum_t_m = t_m.map(val => { currentCum += val; return currentCum; });
+
+        // Trend Chart (Stacked Bar + Line) with universalLabelsPlugin
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        if (detailTrendChart) detailTrendChart.destroy();
+        detailTrendChart = new Chart(trendCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1월', '2월', '3월', '4월', '5월'],
+                datasets: [
+                    { type: 'bar', label: '생산소모품', data: prod_m, backgroundColor: '#1f3864' },
+                    { type: 'bar', label: '기계수리', data: mach_m, backgroundColor: '#b88a2e' },
+                    { type: 'bar', label: '일반소모품', data: gen_m, backgroundColor: '#9db3d6' },
+                    { type: 'line', label: '전체 누적 합계', data: cum_t_m, borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 2, pointRadius: 4, tension: 0.1, yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                layout: { padding: { top: 15, right: 10 } },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 8 } },
+                    tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': $' + context.raw.toLocaleString(); } } }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, type: 'linear', position: 'left', display: false },
+                    y1: { type: 'linear', position: 'right', display: false, grid: { drawOnChartArea: false } }
+                }
+            },
+            plugins: [universalLabelsPlugin]
+        });
+
+        // Chart 1: Category Pie
         const pieCtx = document.getElementById('detailPieChart').getContext('2d');
         if (detailPieChart) detailPieChart.destroy();
         detailPieChart = new Chart(pieCtx, {
@@ -464,7 +582,7 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } }, layout: { padding: 10 } }
         });
 
-        // Chart 2: Classification
+        // Chart 2: Classification Pie
         const classCtx = document.getElementById('detailClassChart').getContext('2d');
         if (detailClassChart) detailClassChart.destroy();
         detailClassChart = new Chart(classCtx, {
