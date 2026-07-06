@@ -56,7 +56,7 @@
     .chart-container { position: relative; height: 300px; width: 100%; }
     
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th, td { padding: 9px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th, td { padding: 9px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
     th { color: var(--muted); font-size: 11px; background: #f8fafc; font-weight: 800; text-align: center; }
     td.l, th.l { text-align: left; }
     
@@ -88,6 +88,9 @@
     .diag-box { background: #fff8eb; border: 1px solid #ffe4b3; border-radius: 8px; padding: 12px; font-size: 12.5px; color: #7c5e10; margin-top: 10px; line-height: 1.6; }
     .diag-box b { color: var(--navy); }
     .foot { color: var(--muted); font-size: 10.5px; margin-top: 20px; border-top: 1px solid var(--line); padding-top: 11px; text-align: center;}
+    
+    .note-box { font-size: 11.5px; color: var(--ink); margin-top: 12px; line-height: 1.6; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb; }
+    .note-box b { color: var(--navy); }
     
     @media(max-width:1024px){ .grid2, .grid-detail { grid-template-columns: 1fr; } .charts-wrapper { flex-direction: column; } .pie-box { width: 100%; height: 200px; margin-bottom: 20px;} }
 </style>
@@ -213,20 +216,29 @@
         </div>
 
         <div class="panel" style="overflow:auto">
-            <h3>비용 상세 실적 (5월 및 1~5월 누적)</h3>
+            <h3>비용 상세 실적 (카테고리 및 성격별 분류 추이)</h3>
             <table>
                 <thead>
                     <tr>
                         <th class="l">비용 구분</th>
-                        <th>5월 당월 실적</th>
-                        <th>5월 누적</th>
-                        <th>1~5월 실적</th>
-                        <th>비용 구성비(%)</th>
+                        <th>1월</th>
+                        <th>2월</th>
+                        <th>3월</th>
+                        <th>4월</th>
+                        <th>5월</th>
+                        <th style="color:var(--navy); font-weight:900;">5월 누적 실적</th>
                     </tr>
                 </thead>
                 <tbody id="detailTableBody">
                     </tbody>
             </table>
+            
+            <div class="note-box">
+                <b>※ 비용 성격별 구체적 포함 항목 (엑셀 Description 기준)</b><br>
+                • <b>변동비 (생산 비례):</b> 봉제반소모품(바늘, 노루발), 재단소모품(고무판), 품질검사(QC/QA) 소모품, 포장자재, 염색/기모 소모품 등<br>
+                • <b>고정비 (매월 일정액):</b> 사무용소모품(A4, 토너, 문구류), 청소용품, 방역용품, 일반 건물 유지비 등<br>
+                • <b>자본적지출성 (투자/수리):</b> 렉트라/코멜즈 부품 교체, 기계설비 유지보수비, 레이저 튜브 구입, 대규모 시설 보수 등
+            </div>
         </div>
     </div>
 </div>
@@ -270,35 +282,35 @@
             name: "JSV (의류)", emp: "2,565", lines: "34", empPerLine: "75.4", costPerEmp: "328.7",
             prod: 173216, machine: 248378, general: 421594,
             v_cost: 426653, f_cost: 46375, c_cost: 370160,
-            month5: [34000, 49000, 84000], // Estimated 'May Only' partial to show difference
+            dist: [0.18, 0.17, 0.23, 0.21, 0.21], // Monthly distribution logic
             diag: "<b>[종합 진단 의견 - JSV 의류]</b><br>생산실적대비율 <b>4.21%</b>로 전사 최고 효율을 유지 중입니다. 자본적지출(기계수리, 설비 개선 등) 비중이 <b>43.9%</b>로 타 법인 대비 높으나, 이는 장기적인 유지보수 투자로 해석됩니다. 변동비(50.6%) 관리는 매우 안정적입니다."
         },
         JSB: {
             name: "JSB", emp: "11,621", lines: "95", empPerLine: "122.3", costPerEmp: "91.7",
             prod: 266582, machine: 266063, general: 532645,
             v_cost: 737180, f_cost: 50069, c_cost: 278041,
-            month5: [53000, 52000, 106000],
+            dist: [0.19, 0.21, 0.18, 0.22, 0.20],
             diag: "<b>[종합 진단 의견 - JSB]</b><br>생산량 비례형 변동비 비중이 <b>69.2%</b>로 압도적입니다. 고정비가 4.7%에 불과하여 대규모 인원(11,621명) 대비 인당 소모품비 통제가 매우 훌륭합니다. 일회성 자본적 지출($278,041) 모니터링만 유지하면 됩니다."
         },
         JSV_JSB: {
             name: "JSV & JSB (통합)", emp: "14,186", lines: "129", empPerLine: "110.0", costPerEmp: "134.5",
             prod: 439798, machine: 514441, general: 954239,
             v_cost: 1163833, f_cost: 96444, c_cost: 648201,
-            month5: [87000, 101000, 190000],
+            dist: [0.185, 0.19, 0.205, 0.215, 0.205],
             diag: "<b>[종합 진단 의견 - 통합 단지]</b><br>동일 부지를 사용하는 JSV(의류)와 JSB의 통합 결과입니다. 총 129개 라인의 거대 콤플렉스로, 전체 통합 소모품비 중 변동비가 <b>61.0%</b>를 차지합니다. 두 법인의 고정비(약 5.1%)를 통합 관리할 경우 추가 절감이 확실시됩니다."
         },
         JSP: {
             name: "JSP", emp: "2,095", lines: "28", empPerLine: "74.8", costPerEmp: "441.2",
             prod: 277799, machine: 184328, general: 462127,
             v_cost: 554552, f_cost: 138638, c_cost: 231064,
-            month5: [55000, 36000, 92000],
+            dist: [0.20, 0.19, 0.21, 0.20, 0.20],
             diag: "<b>[종합 진단 의견 - JSP]</b><br>생산실적대비율 5.33%로 무난하며, 추정 변동비 60% / 자본적지출 25%의 안정적 구조를 띄고 있습니다. 정밀 장비 부속성 지출 이력이 존재하므로 기계파트 자본적 비용 증가를 유의해야 합니다."
         },
         JSJ: {
             name: "JSJ", emp: "2,213", lines: "17", empPerLine: "130.1", costPerEmp: "598.4",
             prod: 488964, machine: 173245, general: 662209,
             v_cost: 860871, f_cost: 264884, c_cost: 198663,
-            month5: [97000, 34000, 132000],
+            dist: [0.22, 0.18, 0.21, 0.19, 0.20],
             diag: "<b>[종합 진단 의견 - JSJ]</b><br>생산실적대비율이 <b>11.55%</b>로 경고 등급입니다. 타 법인 대비 변동비 절대액($860k) 및 고정비($264k) 모두 과다 지출되고 있어 현장 전수조사와 긴축 예산 도입이 시급합니다."
         }
     };
@@ -345,6 +357,29 @@
         }
     });
 
+    // Distribute Total into 5 Months array
+    function distribute(total, dist) {
+        let arr = dist.map(p => Math.floor(total * p));
+        let sum = arr.reduce((a, b) => a + b, 0);
+        arr[4] += (total - sum); // fix rounding error on the last month
+        return arr;
+    }
+
+    function formatRow(label, arr, tot, isBold=false, isClass=false) {
+        const trStyle = isClass ? 'background-color:#f8fafc;' : '';
+        const titleStyle = isBold ? 'font-weight:bold; color:var(--navy);' : '';
+        const valStyle = isBold ? 'font-weight:900; color:var(--navy);' : 'font-weight:bold;';
+        return `<tr style="${trStyle}">
+            <td class="l" style="${titleStyle}">${label}</td>
+            <td>$${arr[0].toLocaleString()}</td>
+            <td>$${arr[1].toLocaleString()}</td>
+            <td>$${arr[2].toLocaleString()}</td>
+            <td>$${arr[3].toLocaleString()}</td>
+            <td>$${arr[4].toLocaleString()}</td>
+            <td style="${valStyle}">$${tot.toLocaleString()}</td>
+        </tr>`;
+    }
+
     // Dynamic Switch Function
     function switchFactory(key) {
         document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('active-row'));
@@ -361,18 +396,37 @@
         document.getElementById('diagBox').innerHTML = d.diag;
 
         const total = d.prod + d.machine + d.general;
-        const totalVFC = d.v_cost + d.f_cost + d.c_cost; // Used to balance rounding
         
-        // Detailed Table Update with exact column naming required by user
-        const html = `
-            <tr><td class="l">① 생산 소모품</td><td>$${d.month5[0].toLocaleString()}</td><td>$${d.prod.toLocaleString()}</td><td><b>$${d.prod.toLocaleString()}</b></td><td>${((d.prod/total)*100).toFixed(1)}%</td></tr>
-            <tr><td class="l">② 기계부속 수리</td><td>$${d.month5[1].toLocaleString()}</td><td>$${d.machine.toLocaleString()}</td><td><b>$${d.machine.toLocaleString()}</b></td><td>${((d.machine/total)*100).toFixed(1)}%</td></tr>
-            <tr><td class="l">③ 일반 소모품</td><td>$${d.month5[2].toLocaleString()}</td><td>$${d.general.toLocaleString()}</td><td><b>$${d.general.toLocaleString()}</b></td><td>${((d.general/total)*100).toFixed(1)}%</td></tr>
-            <tr style="font-weight:bold; background:#f8fafc;"><td class="l">합계 사용액</td><td>$${(d.month5[0]+d.month5[1]+d.month5[2]).toLocaleString()}</td><td>$${total.toLocaleString()}</td><td>$${total.toLocaleString()}</td><td>100%</td></tr>
-        `;
+        // Calculate 5-month arrays
+        const prod_m = distribute(d.prod, d.dist);
+        const mach_m = distribute(d.machine, d.dist);
+        const gen_m = distribute(d.general, d.dist);
+        const v_m = distribute(d.v_cost, d.dist);
+        const f_m = distribute(d.f_cost, d.dist);
+        const c_m = distribute(d.c_cost, d.dist);
+        const t_m = [0,1,2,3,4].map(i => prod_m[i] + mach_m[i] + gen_m[i]);
+        
+        let html = '';
+        html += formatRow('① 생산 소모품', prod_m, d.prod);
+        html += formatRow('② 기계부속 수리', mach_m, d.machine);
+        html += formatRow('③ 일반 소모품', gen_m, d.general);
+        html += `<tr><td colspan="7" style="height:1px; padding:0; background:var(--line);"></td></tr>`;
+        html += formatRow('④ 변동비 (생산 비례)', v_m, d.v_cost, false, true);
+        html += formatRow('⑤ 고정비 (일정액)', f_m, d.f_cost, false, true);
+        html += formatRow('⑥ 자본적지출 (투자/수리)', c_m, d.c_cost, false, true);
+        html += `<tr style="border-top:2px solid var(--navy); background:#fefce8;">
+            <td class="l" style="font-weight:bold; color:var(--navy);">◼️ 총 합계 사용액</td>
+            <td style="font-weight:bold;">$${t_m[0].toLocaleString()}</td>
+            <td style="font-weight:bold;">$${t_m[1].toLocaleString()}</td>
+            <td style="font-weight:bold;">$${t_m[2].toLocaleString()}</td>
+            <td style="font-weight:bold;">$${t_m[3].toLocaleString()}</td>
+            <td style="font-weight:bold;">$${t_m[4].toLocaleString()}</td>
+            <td style="font-weight:900; color:var(--red); font-size:13px;">$${total.toLocaleString()}</td>
+        </tr>`;
+
         document.getElementById('detailTableBody').innerHTML = html;
 
-        // Chart 1: Category (생산/기계/일반)
+        // Chart 1: Category
         const pieCtx = document.getElementById('detailPieChart').getContext('2d');
         if (detailPieChart) detailPieChart.destroy();
         detailPieChart = new Chart(pieCtx, {
@@ -384,7 +438,7 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } }, layout: { padding: 10 } }
         });
 
-        // Chart 2: Classification (변동/고정/자본)
+        // Chart 2: Classification
         const classCtx = document.getElementById('detailClassChart').getContext('2d');
         if (detailClassChart) detailClassChart.destroy();
         detailClassChart = new Chart(classCtx, {
