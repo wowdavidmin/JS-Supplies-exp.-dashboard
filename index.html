@@ -16,7 +16,6 @@
         --line: #e5e7eb;
         --green: #059669;
         --red: #dc2626;
-        --highlight: #fefce8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -67,13 +66,13 @@
     
     .good { color: var(--green); font-weight: 700; }
     .bad { color: var(--red); font-weight: 700; }
+    .pct { color: var(--muted); font-size: 11px; margin-left: 6px; }
+    .gh .pct { color: var(--navy); font-weight: normal; }
 
     .detail-section { border-top: 3px solid var(--navy); padding-top: 8px; }
     .factory-selector { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
     .btn-factory { padding: 6px 14px; border: 1px solid var(--line); background: #fff; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; color: var(--ink); }
     .btn-factory.active { background: var(--navy); color: #fff; border-color: var(--navy); }
-    .btn-merged { border-color: var(--gold); color: #9c721d; background: var(--highlight); }
-    .btn-merged.active { background: var(--gold); color: #fff; }
     
     .grid-detail { display: grid; grid-template-columns: 480px 1fr; gap: 12px; }
     .factory-cards { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
@@ -129,8 +128,8 @@
             <tr id="row-JSB" class="clickable-row" onclick="switchFactory('JSB')">
                 <td class="l">2</td><td class="l"><b>JSB</b></td><td>11,621</td><td>95</td><td>7,548,849</td><td>$266,582</td><td>$266,063</td><td>$532,645</td><td>$1,065,290</td><td>$0.141</td><td>5.40%</td>
             </tr>
-            <tr id="row-JSV_JSB" class="clickable-row" style="background-color: var(--highlight);" onclick="switchFactory('JSV_JSB')">
-                <td class="l">-</td><td class="l" style="color:#9c721d;"><b>🔗 JSV & JSB (통합)</b></td><td>14,186</td><td>129</td><td>16,935,349</td><td>$439,798</td><td>$514,441</td><td>$954,239</td><td>$1,908,478</td><td>$0.113</td><td><span class="good">4.74%</span></td>
+            <tr id="row-JSV_JSB" class="clickable-row" onclick="switchFactory('JSV_JSB')">
+                <td class="l">-</td><td class="l"><b>JSV & JSB (통합)</b></td><td>14,186</td><td>129</td><td>16,935,349</td><td>$439,798</td><td>$514,441</td><td>$954,239</td><td>$1,908,478</td><td>$0.113</td><td><span class="good">4.74%</span></td>
             </tr>
             <tr id="row-JSP" class="clickable-row" onclick="switchFactory('JSP')">
                 <td class="l">3</td><td class="l"><b>JSP</b></td><td>2,095</td><td>28</td><td>7,861,695</td><td>$277,799</td><td>$184,328</td><td>$462,127</td><td>$924,254</td><td>$0.118</td><td>5.33%</td>
@@ -152,21 +151,48 @@
             <tr>
                 <th class="l">법인명</th>
                 <th>총 합계 사용액</th>
-                <th>변동비 추산액</th>
-                <th>변동비 비중</th>
-                <th>고정비 추산액</th>
-                <th>고정비 비중</th>
-                <th>자본적지출성 추산액</th>
-                <th>자본적 비중</th>
+                <th>변동비 추산액 (비중)</th>
+                <th>고정비 추산액 (비중)</th>
+                <th>자본적지출 추산액 (비중)</th>
             </tr>
         </thead>
         <tbody>
-            <tr><td class="l"><b>JSV (의류)</b></td><td>$843,188</td><td>$426,653</td><td>50.6%</td><td>$46,375</td><td>5.5%</td><td>$370,160</td><td>43.9%</td></tr>
-            <tr><td class="l"><b>JSB</b></td><td>$1,065,290</td><td>$737,180</td><td>69.2%</td><td>$50,069</td><td>4.7%</td><td>$278,041</td><td>26.1%</td></tr>
-            <tr style="background:#fefce8;"><td class="l" style="color:#9c721d;"><b>🔗 JSV & JSB (통합)</b></td><td>$1,908,478</td><td>$1,163,833</td><td>61.0%</td><td>$96,444</td><td>5.1%</td><td>$648,201</td><td>33.9%</td></tr>
-            <tr><td class="l"><b>JSP</b></td><td>$924,254</td><td>$554,552</td><td>60.0%</td><td>$138,638</td><td>15.0%</td><td>$231,064</td><td>25.0%</td></tr>
-            <tr><td class="l"><b>JSJ</b></td><td>$1,324,418</td><td>$860,871</td><td>65.0%</td><td>$264,884</td><td>20.0%</td><td>$198,663</td><td>15.0%</td></tr>
-            <tr class="gh"><td class="l"><b>Group Total (통합제외)</b></td><td>$4,157,150</td><td>$2,579,256</td><td>62.0%</td><td>$500,006</td><td>12.0%</td><td>$1,077,888</td><td>26.0%</td></tr>
+            <tr>
+                <td class="l"><b>JSV (의류)</b></td><td>$843,188</td>
+                <td>$426,653 <span class="pct">(50.6%)</span></td>
+                <td>$46,375 <span class="pct">(5.5%)</span></td>
+                <td>$370,160 <span class="pct">(43.9%)</span></td>
+            </tr>
+            <tr>
+                <td class="l"><b>JSB</b></td><td>$1,065,290</td>
+                <td>$737,180 <span class="pct">(69.2%)</span></td>
+                <td>$50,069 <span class="pct">(4.7%)</span></td>
+                <td>$278,041 <span class="pct">(26.1%)</span></td>
+            </tr>
+            <tr>
+                <td class="l"><b>JSV & JSB (통합)</b></td><td>$1,908,478</td>
+                <td>$1,163,833 <span class="pct">(61.0%)</span></td>
+                <td>$96,444 <span class="pct">(5.1%)</span></td>
+                <td>$648,201 <span class="pct">(33.9%)</span></td>
+            </tr>
+            <tr>
+                <td class="l"><b>JSP</b></td><td>$924,254</td>
+                <td>$554,552 <span class="pct">(60.0%)</span></td>
+                <td>$138,638 <span class="pct">(15.0%)</span></td>
+                <td>$231,064 <span class="pct">(25.0%)</span></td>
+            </tr>
+            <tr>
+                <td class="l"><b>JSJ</b></td><td>$1,324,418</td>
+                <td>$860,871 <span class="pct">(65.0%)</span></td>
+                <td>$264,884 <span class="pct">(20.0%)</span></td>
+                <td>$198,663 <span class="pct">(15.0%)</span></td>
+            </tr>
+            <tr class="gh">
+                <td class="l"><b>Group Total (통합제외)</b></td><td>$4,157,150</td>
+                <td>$2,579,256 <span class="pct">(62.0%)</span></td>
+                <td>$500,006 <span class="pct">(12.0%)</span></td>
+                <td>$1,077,888 <span class="pct">(26.0%)</span></td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -186,7 +212,7 @@
     <div class="factory-selector">
         <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">1. JSV (의류) 분석</button>
         <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">2. JSB 분석</button>
-        <button class="btn-factory btn-merged" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">🔗 3. JSV & JSB (통합) 분석</button>
+        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">3. JSV & JSB (통합) 분석</button>
         <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">4. JSP 분석</button>
         <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">5. JSJ 분석</button>
     </div>
@@ -282,7 +308,7 @@
             name: "JSV (의류)", emp: "2,565", lines: "34", empPerLine: "75.4", costPerEmp: "328.7",
             prod: 173216, machine: 248378, general: 421594,
             v_cost: 426653, f_cost: 46375, c_cost: 370160,
-            dist: [0.18, 0.17, 0.23, 0.21, 0.21], // Monthly distribution logic
+            dist: [0.18, 0.17, 0.23, 0.21, 0.21], 
             diag: "<b>[종합 진단 의견 - JSV 의류]</b><br>생산실적대비율 <b>4.21%</b>로 전사 최고 효율을 유지 중입니다. 자본적지출(기계수리, 설비 개선 등) 비중이 <b>43.9%</b>로 타 법인 대비 높으나, 이는 장기적인 유지보수 투자로 해석됩니다. 변동비(50.6%) 관리는 매우 안정적입니다."
         },
         JSB: {
@@ -361,7 +387,7 @@
     function distribute(total, dist) {
         let arr = dist.map(p => Math.floor(total * p));
         let sum = arr.reduce((a, b) => a + b, 0);
-        arr[4] += (total - sum); // fix rounding error on the last month
+        arr[4] += (total - sum); 
         return arr;
     }
 
