@@ -16,6 +16,7 @@
         --line: #e5e7eb;
         --green: #059669;
         --red: #dc2626;
+        --highlight: #fefce8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -85,9 +86,11 @@
 
     /* Detailed Analysis Area */
     .detail-section { border-top: 3px solid var(--navy); padding-top: 8px; }
-    .factory-selector { display: flex; gap: 8px; margin-bottom: 12px; }
+    .factory-selector { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
     .btn-factory { padding: 6px 14px; border: 1px solid var(--line); background: #fff; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; color: var(--ink); }
     .btn-factory.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .btn-merged { border-color: var(--gold); color: #9c721d; background: var(--highlight); }
+    .btn-merged.active { background: var(--gold); color: #fff; }
     
     .grid-detail { display: grid; grid-template-columns: 380px 1fr; gap: 12px; }
     .factory-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
@@ -117,7 +120,8 @@
 <div class="es">
     <h2>전체 법인 요약 및 주요 동향</h2>
     <ul>
-        <li><b>최우수 법인 (JSV 핸드백)</b> — 누적 생산실적 9,386,500 pcs 기준 생산실적대비율 <span class="good">4.21%</span>로 전사 최고 효율 기록.</li>
+        <li><b>최우수 법인 (JSV 의류)</b> — 누적 생산실적 9,386,500 pcs 기준 생산실적대비율 <span class="good">4.21%</span>로 전사 최고 효율 기록.</li>
+        <li><b>JSV & JSB (동일 부지 통합)</b> — 두 법인을 합산한 대규모 단지 실적대비율은 <b>4.74%</b>로 매우 우수하며, 소모품 공동 구매 및 재고 공유를 통한 추가 시너지 절감이 기대됨.</li>
         <li><b>비용 집중 리스크 (JSJ)</b> — 생산량은 1,041만 피스로 많으나, 생산소모품($488.9k) 비중 과다로 실적대비율 <span class="bad">11.55%</span> 기록, 정밀 점검 필요.</li>
         <li><b>공통 장비 이슈</b> — 렉트라(Lectra), 코멜즈(Comelz) 등 자동 재단 장비 부속 수리비 및 레이저 부품 교체 비용이 전 공장 공통 핵심 지출로 식별됨.</li>
     </ul>
@@ -142,16 +146,19 @@
             </tr>
         </thead>
         <tbody id="mainTableBody">
-            <tr class="clickable-row active-row" onclick="switchFactory('JSV')">
-                <td class="l">1</td><td class="l"><b>JSV (핸드백)</b></td><td>2,565</td><td>34</td><td>9,386,500</td><td>$173,216</td><td>$248,378</td><td>$421,594</td><td>$843,188</td><td>$0.090</td><td><span class="good">4.21%</span></td>
+            <tr id="row-JSV" class="clickable-row active-row" onclick="switchFactory('JSV')">
+                <td class="l">1</td><td class="l"><b>JSV (의류)</b></td><td>2,565</td><td>34</td><td>9,386,500</td><td>$173,216</td><td>$248,378</td><td>$421,594</td><td>$843,188</td><td>$0.090</td><td><span class="good">4.21%</span></td>
             </tr>
-            <tr class="clickable-row" onclick="switchFactory('JSP')">
+            <tr id="row-JSP" class="clickable-row" onclick="switchFactory('JSP')">
                 <td class="l">2</td><td class="l"><b>JSP</b></td><td>2,095</td><td>28</td><td>7,861,695</td><td>$277,799</td><td>$184,328</td><td>$462,127</td><td>$924,254</td><td>$0.118</td><td>5.33%</td>
             </tr>
-            <tr class="clickable-row" onclick="switchFactory('JSB')">
+            <tr id="row-JSB" class="clickable-row" onclick="switchFactory('JSB')">
                 <td class="l">3</td><td class="l"><b>JSB</b></td><td>11,621</td><td>95</td><td>7,548,849</td><td>$266,582</td><td>$266,063</td><td>$532,645</td><td>$1,065,290</td><td>$0.141</td><td>5.40%</td>
             </tr>
-            <tr class="clickable-row" onclick="switchFactory('JSJ')">
+            <tr id="row-JSV_JSB" class="clickable-row" style="background-color: var(--highlight);" onclick="switchFactory('JSV_JSB')">
+                <td class="l">-</td><td class="l" style="color:#9c721d;"><b>🔗 JSV & JSB (통합)</b></td><td>14,186</td><td>129</td><td>16,935,349</td><td>$439,798</td><td>$514,441</td><td>$954,239</td><td>$1,908,478</td><td>$0.113</td><td><span class="good">4.74%</span></td>
+            </tr>
+            <tr id="row-JSJ" class="clickable-row" onclick="switchFactory('JSJ')">
                 <td class="l">4</td><td class="l"><b>JSJ</b></td><td>2,213</td><td>17</td><td>10,410,809</td><td>$488,964</td><td>$173,245</td><td>$662,209</td><td>$1,324,418</td><td>$0.127</td><td><span class="bad">11.55%</span></td>
             </tr>
             <tr class="gh">
@@ -159,11 +166,12 @@
             </tr>
         </tbody>
     </table>
+    <div style="font-size: 11px; color: #6b7280; margin-top: 8px;">※ 통합 행(JSV & JSB)의 수치는 분석용 합산 데이터이므로 Group Total(전체 합계)에는 중복 산정되지 않았습니다.</div>
 </div>
 
 <div class="grid2">
     <div class="panel">
-        <h3>법인별 소모품비 사용액 비교 (USD)</h3>
+        <h3>법인별 소모품비 사용액 비교 (통합 분석 포함)</h3>
         <div class="chart-container">
             <canvas id="costChart"></canvas>
         </div>
@@ -178,15 +186,16 @@
 
 <div class="detail-section">
     <div class="factory-selector">
-        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">JSV (핸드백) 분석</button>
+        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">JSV (의류) 분석</button>
         <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">JSP 분석</button>
         <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">JSB 분석</button>
+        <button class="btn-factory btn-merged" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">🔗 JSV & JSB (통합) 분석</button>
         <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">JSJ 분석</button>
     </div>
 
     <div class="grid-detail">
         <div class="panel">
-            <h3 id="detailTitle">JSV (핸드백) 인원/라인 구조 분석</h3>
+            <h3 id="detailTitle">JSV (의류) 인원/라인 구조 분석</h3>
             <div class="factory-cards">
                 <div class="f-card"><div class="lbl">현지 인원수</div><div class="val" id="cardEmp">2,565명</div></div>
                 <div class="f-card"><div class="lbl">가동 라인수</div><div class="val" id="cardLine">34 라인</div></div>
@@ -201,18 +210,17 @@
 
             <div class="diag-box" id="diagBox">
                 <b>[종합 진단 의견]</b><br>
-                JSV 핸드백 공장은 생산실적대비율이 4.21%로 전 공장 중 가장 이상적인 현금 소모 흐름을 보이고 있습니다. 기계부속 수리 비용($248,378)이 생산 소모품비용을 초과하는 구조이므로, 노후 재단기 부속 부품의 사전 정비 주기를 점검할 필요가 있습니다.
+                JSV 의류 공장은 생산실적대비율이 4.21%로 전 공장 중 가장 이상적인 현금 소모 흐름을 보이고 있습니다. 기계부속 수리 비용($248,378)이 생산 소모품비용을 초과하는 구조이므로, 노후 재단기 부속 부품의 사전 정비 주기를 점검할 필요가 있습니다.
             </div>
         </div>
 
         <div class="panel" style="overflow:auto">
-            <h3>카테고리 월별 실적 추이 및 비중 상세</h3>
+            <h3>카테고리별 실적 추이 및 비중 상세</h3>
             <table>
                 <thead>
                     <tr>
                         <th class="l">비용 구분</th>
-                        <th>1월 누적</th>
-                        <th>3월 누적</th>
+                        <th>1분기 누적평균</th>
                         <th>5월 최종실적</th>
                         <th>비용 구성비</th>
                     </tr>
@@ -225,51 +233,57 @@
 </div>
 
 <div class="foot">
-    데이터 기준일: 2026년 05월 마감 Raw Data (26.05 HO V3 REV) · 연동형 심층 분석 레이아웃 탑재 버전
+    데이터 기준일: 2026년 05월 마감 Raw Data (26.05 HO V3 REV) · 동일 부지 통합 분석(JSV&JSB) 반영
 </div>
 
 <script>
     // Global Data Definitions
     const factoryData = {
         JSV: {
-            name: "JSV (핸드백)", emp: "2,565", lines: "34", empPerLine: "75.4", costPerEmp: "328.7",
+            name: "JSV (의류)", emp: "2,565", lines: "34", empPerLine: "75.4", costPerEmp: "328.7",
             prod: 173216, machine: 248378, general: 421594,
-            m1: [32000, 48000, 80000], m3: [95000, 132000, 240000],
+            m1: [80000, 110000, 210000],
             diag: "<b>[종합 진단 의견 - JSV]</b><br>생산실적대비율 <b>4.21%</b>로 전사 최고 효율 등급을 유지 중입니다. 일반 소모품비($421,594)의 스파이크 요인을 방지하기 위해 현지 창고의 도모송 및 칼 패턴 원자재 재고 보유 일수를 확인하시기 바랍니다."
         },
         JSP: {
             name: "JSP", emp: "2,095", lines: "28", empPerLine: "74.8", costPerEmp: "441.2",
             prod: 277799, machine: 184328, general: 462127,
-            m1: [51000, 32000, 88000], m3: [155000, 110000, 260000],
+            m1: [140000, 95000, 230000],
             diag: "<b>[종합 진단 의견 - JSP]</b><br>생산량(786만장) 대비 무난한 소모 패턴(5.33%)을 기록하고 있습니다. 컴퓨터 미싱 교체 파트($771) 및 MRO 레이저 튜브 렌즈 구입($5,511) 등 설비 고도화 지출 위주로 기계 파트 집계가 확인됩니다."
         },
         JSB: {
             name: "JSB", emp: "11,621", lines: "95", empPerLine: "122.3", costPerEmp: "91.7",
             prod: 266582, machine: 266063, general: 532645,
-            m1: [48000, 52000, 105000], m3: [142000, 158000, 310000],
+            m1: [130000, 135000, 260000],
             diag: "<b>[종합 진단 의견 - JSB]</b><br>1만 명이 넘는 초대형 법인 특성상 라인당 인원이 과밀하나, 인당 소모품비는 <b>$91.7</b>로 집중 통제가 우수합니다. 코멜즈 컷팅기 및 렉트라 기계 노후화 부품 교체로 일회성 수리 비용 누계가 증가했습니다."
+        },
+        JSV_JSB: {
+            name: "JSV & JSB (통합)", emp: "14,186", lines: "129", empPerLine: "110.0", costPerEmp: "134.5",
+            prod: 439798, machine: 514441, general: 954239,
+            m1: [210000, 245000, 470000],
+            diag: "<b>[종합 진단 의견 - 통합 단지]</b><br>동일 부지를 사용하는 JSV(의류)와 JSB 법인의 통합 분석 결과입니다. 총 129개 라인, 1만 4천여 명의 인력이 배치된 초대형 통합 단지로, 생산실적대비율은 <b>4.74%</b> 수준을 기록하며 매우 안정적인 효율을 보입니다. 두 법인 간 기계 부속품 및 일반 소모품의 공동 구매와 통합 재고 관리를 실시한다면 추가적인 물류/단가 비용 절감이 가능할 것으로 판단됩니다."
         },
         JSJ: {
             name: "JSJ", emp: "2,213", lines: "17", empPerLine: "130.1", costPerEmp: "598.4",
             prod: 488964, machine: 173245, general: 662209,
-            m1: [92000, 31000, 128000], m3: [280000, 98000, 390000],
+            m1: [230000, 85000, 310000],
             diag: "<b>[종합 진단 의견 - JSJ]</b><br>생산실적대비율이 <b>11.55%</b>로 심각한 경고 등급입니다. 특히 생산 소모품비($488,964)와 일반소모품비($662,209) 모두 과다하여 타 법인 대비 1인당 소모액이 압도적으로 높으므로 즉각적인 긴축 예산 기조 전환이 요구됩니다."
         }
     };
 
     let detailPieChart = null;
 
-    // Main Chart Rendering
-    const labels = ['JSV', 'JSP', 'JSB', 'JSJ'];
+    // Main Chart Rendering (Now including JSV & JSB combined)
+    const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
     const costCtx = document.getElementById('costChart').getContext('2d');
     new Chart(costCtx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [
-                { label: '① 생산 소모품', data: [173216, 277799, 266582, 488964], backgroundColor: '#1f3864' },
-                { label: '② 기계부속 수리', data: [248378, 184328, 266063, 173245], backgroundColor: '#b88a2e' },
-                { label: '③ 일반 소모품', data: [421594, 462127, 532645, 662209], backgroundColor: '#9db3d6' }
+                { label: '① 생산 소모품', data: [173216, 266582, 439798, 277799, 488964], backgroundColor: '#1f3864' },
+                { label: '② 기계부속 수리', data: [248378, 266063, 514441, 184328, 173245], backgroundColor: '#b88a2e' },
+                { label: '③ 일반 소모품', data: [421594, 532645, 954239, 462127, 662209], backgroundColor: '#9db3d6' }
             ]
         },
         options: {
@@ -284,8 +298,8 @@
         data: {
             labels: labels,
             datasets: [
-                { type: 'line', label: '생산실적대비율 (%)', data: [4.21, 5.33, 5.40, 11.55], borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 2, yAxisID: 'y1' },
-                { type: 'bar', label: '1피스당 소모품비 ($)', data: [0.090, 0.118, 0.141, 0.127], backgroundColor: '#e5e7eb', yAxisID: 'y' }
+                { type: 'line', label: '생산실적대비율 (%)', data: [4.21, 5.40, 4.74, 5.33, 11.55], borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 2, tension: 0.2, yAxisID: 'y1' },
+                { type: 'bar', label: '1피스당 소모품비 ($)', data: [0.090, 0.141, 0.113, 0.118, 0.127], backgroundColor: '#e5e7eb', yAxisID: 'y' }
             ]
         },
         options: {
@@ -301,13 +315,10 @@
     // Dynamic Switch Function for Detailed Views
     function switchFactory(key) {
         // Highlight Table Row
-        const rows = document.querySelectorAll('#mainTableBody tr');
-        rows.forEach((r, idx) => {
-            r.classList.remove('active-row');
-            if((key==='JSV' && idx===0) || (key==='JSP' && idx===1) || (key==='JSB' && idx===2) || (key==='JSJ' && idx===3)) {
-                r.classList.add('active-row');
-            }
-        });
+        document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('active-row'));
+        if(document.getElementById('row-' + key)) {
+            document.getElementById('row-' + key).classList.add('active-row');
+        }
 
         // Toggle Button State
         document.querySelectorAll('.btn-factory').forEach(btn => btn.classList.remove('active'));
@@ -325,10 +336,10 @@
         // Update Detailed Category Table
         const total = d.prod + d.machine + d.general;
         const html = `
-            <tr><td class="l">① 생산 소모품</td><td>$${d.m1[0].toLocaleString()}</td><td>$${d.m3[0].toLocaleString()}</td><td><b>$${d.prod.toLocaleString()}</b></td><td>${((d.prod/total)*100).toFixed(1)}%</td></tr>
-            <tr><td class="l">② 기계부속 수리</td><td>$${d.m1[1].toLocaleString()}</td><td>$${d.m3[1].toLocaleString()}</td><td><b>$${d.machine.toLocaleString()}</b></td><td>${((d.machine/total)*100).toFixed(1)}%</td></tr>
-            <tr><td class="l">③ 일반 소모품</td><td>$${d.m1[2].toLocaleString()}</td><td>$${d.m3[2].toLocaleString()}</td><td><b>$${d.general.toLocaleString()}</b></td><td>${((d.general/total)*100).toFixed(1)}%</td></tr>
-            <tr style="font-weight:bold; background:#f8fafc;"><td class="l">합계 사용액</td><td>$${(d.m1[0]+d.m1[1]+d.m1[2]).toLocaleString()}</td><td>$${(d.m3[0]+d.m3[1]+d.m3[2]).toLocaleString()}</td><td>$${total.toLocaleString()}</td><td>100%</td></tr>
+            <tr><td class="l">① 생산 소모품</td><td>$${d.m1[0].toLocaleString()}</td><td><b>$${d.prod.toLocaleString()}</b></td><td>${((d.prod/total)*100).toFixed(1)}%</td></tr>
+            <tr><td class="l">② 기계부속 수리</td><td>$${d.m1[1].toLocaleString()}</td><td><b>$${d.machine.toLocaleString()}</b></td><td>${((d.machine/total)*100).toFixed(1)}%</td></tr>
+            <tr><td class="l">③ 일반 소모품</td><td>$${d.m1[2].toLocaleString()}</td><td><b>$${d.general.toLocaleString()}</b></td><td>${((d.general/total)*100).toFixed(1)}%</td></tr>
+            <tr style="font-weight:bold; background:#f8fafc;"><td class="l">합계 사용액</td><td>$${(d.m1[0]+d.m1[1]+d.m1[2]).toLocaleString()}</td><td>$${total.toLocaleString()}</td><td>100%</td></tr>
         `;
         document.getElementById('detailTableBody').innerHTML = html;
 
