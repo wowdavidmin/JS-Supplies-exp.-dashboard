@@ -43,17 +43,16 @@
     .head h1 { font-size: 17px; margin: 0; }
     .head .sub { font-size: 11.5px; opacity: .8; }
     
-    /* Executive Summary Styles */
     .es { background: var(--card); border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 15px 18px; margin-bottom: 12px; border-left: 5px solid var(--gold); }
-    .es .estag { color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; }
     .es h2 { font-size: 15px; margin: 3px 0 12px; color: var(--navy); }
-    .esStats { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 8px; margin-bottom: 15px; }
-    .esStat { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: .12s; position: relative; }
+    .esStats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+    .esStat { flex: 1 1 calc(25% - 10px); min-width: 180px; background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: .12s; position: relative; box-sizing: border-box; }
     .esStat:hover { box-shadow: 0 0 0 2px #9db3d6; }
-    .esStat .l { color: var(--muted); font-size: 11px; }
+    .esStat .l { color: var(--muted); font-size: 11.5px; margin-bottom: 2px; }
     .esStat .v { font-size: 15px; font-weight: 800; margin-top: 3px; color: var(--navy); }
     .esStat .iq { position: absolute; top: 8px; right: 10px; font-size: 10px; color: #9db3d6; font-weight: 800; }
-    .es ul { list-style: none; padding-left: 0; border-top: 1px dashed var(--line); padding-top: 10px; }
+    
+    .es ul { list-style: none; padding-left: 0; border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 5px; }
     .es li { padding: 6px 0 6px 18px; position: relative; font-size: 12.5px; border-bottom: 1px dashed var(--line); }
     .es li:last-child { border: none; }
     .es li:before { content: "▸"; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
@@ -63,6 +62,7 @@
     
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .chart-container { position: relative; height: 300px; width: 100%; }
+    .deviation-container { position: relative; height: 260px; width: 100%; margin-top: 5px; }
     
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
     th, td { padding: 9px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
@@ -102,7 +102,6 @@
     
     .compact-table th, .compact-table td { padding: 4px 6px; font-size: 11px; }
 
-    /* Modal Styles */
     .modal-bg { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
     .modal-bg.show { display: flex; }
     .modal { background: #fff; border-radius: 12px; max-width: 460px; width: 100%; padding: 18px 20px; box-shadow: 0 12px 44px rgba(0,0,0,.35); }
@@ -111,7 +110,7 @@
     .modal .mb { font-size: 12.5px; color: #374151; line-height: 1.65; }
     .modal .mclose { margin-top: 14px; text-align: center; background: var(--navy); color: #fff; border-radius: 7px; padding: 8px; cursor: pointer; font-weight: 700; }
     
-    @media(max-width:1024px){ .grid2, .grid-detail { grid-template-columns: 1fr; } .charts-wrapper { flex-direction: column; } .pie-box { width: 100%; height: 200px; margin-bottom: 20px;} }
+    @media(max-width:1024px){ .grid2, .grid-detail { grid-template-columns: 1fr; } .charts-wrapper { flex-direction: column; } .pie-box { width: 100%; height: 200px; margin-bottom: 20px;} .esStat { flex: 1 1 100%; } }
 </style>
 </head>
 <body>
@@ -190,6 +189,15 @@
             </tr>
         </tbody>
     </table>
+    
+    <!-- 신규 추가: 1번 테이블 하단 평균 대비 편차 분포도 그래프 -->
+    <h3 style="font-size: 12.5px; margin: 20px 0 5px 0; color: var(--navy); font-weight: 800;">1-2. 각 비용별 그룹 평균 대비 편차(Variance) 분포도 (단위: $1,000)</h3>
+    <div class="deviation-container">
+        <canvas id="deviationChart"></canvas>
+    </div>
+    <div style="font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4;">
+        * 본 그래프는 4개 본창 법인의 항목별 산술평균(생산 소모품: $301K, 기계부속: $218K, 일반 소모품: $519K)을 기준선(0)으로 두고, 각 법인이 평균 대비 초과(`+`/bad) 또는 절감(`-`/good) 하였는지를 시각화한 분포도입니다.
+    </div>
 </div>
 
 <!-- Classification Overview Table -->
@@ -329,7 +337,7 @@
 </div>
 
 <div class="foot">
-    데이터 기준일: 2026년 05월 마감 Raw Data · 데이터 라벨 및 Executive Summary 통합 적용 완료
+    데이터 기준일: 2026년 05월 마감 Raw Data · 1번 항목 하단 평균 대비 편차(분포도) 차트 추가 완료 버전
 </div>
 
 <!-- Modal for KPIs -->
@@ -371,7 +379,7 @@
         else { b.style.display = 'none'; c.textContent = '▶'; }
     }
 
-    // Plugin 1: Doughnut chart percentages
+    // Chart.js Plugins
     Chart.register({
         id: 'percentLabels',
         afterDraw(chart) {
@@ -398,7 +406,6 @@
         }
     });
 
-    // Plugin 2: Universal Data Labels
     const universalLabelsPlugin = {
         id: 'universalLabels',
         afterDatasetsDraw(chart) {
@@ -418,6 +425,8 @@
                     if (chartId === 'ratioChart') {
                         if (dataset.type === 'line') text = val.toFixed(2) + '%';
                         else text = '$' + val.toFixed(3);
+                    } else if (chartId === 'deviationChart') {
+                        text = (val > 0 ? '+' : '') + Math.round(val/1000) + 'k';
                     } else { 
                         if (dataset.type === 'line') {
                             text = Math.round(val/1000) + 'k';
@@ -441,15 +450,21 @@
                         const pos = element.tooltipPosition();
                         ctx.fillText(text, pos.x, pos.y - 6);
                     } else { 
-                        ctx.fillStyle = '#ffffff';
+                        ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
                         ctx.font = 'bold 9.5px "Malgun Gothic"'; 
-                        ctx.textBaseline = 'middle';
+                        if(chartId === 'deviationChart') {
+                            ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
+                        } else {
+                            ctx.textBaseline = 'middle';
+                        }
                         const pos = element.tooltipPosition();
-                        const yCenter = (element.base + element.y) / 2;
+                        const yCenter = chartId === 'deviationChart' ? pos.y + (val >= 0 ? -4 : 4) : (element.base + element.y) / 2;
                         
-                        if (Math.abs(element.base - element.y) > 16) {
-                            ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                            ctx.shadowBlur = 3;
+                        if (chartId === 'deviationChart' || Math.abs(element.base - element.y) > 16) {
+                            if(chartId !== 'deviationChart') {
+                                ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                                ctx.shadowBlur = 3;
+                            }
                             ctx.fillText(text, pos.x, yCenter);
                             ctx.shadowBlur = 0;
                         }
@@ -498,13 +513,30 @@
         }
     };
 
-    let detailPieChart = null;
-    let detailClassChart = null;
-    let detailTrendChart = null;
-
+    // Rendering All Charts
     const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
-    Chart.defaults.color = '#475569';
     
+    // 1-2. New Deviation from Mean Chart (Bar charts mirroring variances)
+    // Mean values across 4 main standalone factories: Prod=$301.6k, Machine=$218.0k, General=$519.6k
+    const devCtx = document.getElementById('deviationChart').getContext('2d');
+    new Chart(devCtx, {
+        type: 'bar',
+        data: {
+            labels: ['JSV(의류)', 'JSB', 'JSP', 'JSJ'],
+            datasets: [
+                { label: '생산 소모품 편차', data: [173216-301640, 266582-301640, 277799-301640, 488964-301640], backgroundColor: 'rgba(31, 56, 100, 0.65)', borderColor: '#1f3864', borderWidth: 1 },
+                { label: '기계부속 수리 편차', data: [248378-218002, 266063-218002, 184328-218002, 173245-218002], backgroundColor: 'rgba(184, 138, 46, 0.65)', borderColor: '#b88a2e', borderWidth: 1 },
+                { label: '일반 소모품 편차', data: [421594-519643, 532645-519643, 462127-519643, 662209-519643], backgroundColor: 'rgba(157, 179, 214, 0.65)', borderColor: '#9db3d6', borderWidth: 1 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { boxWidth: 12 } } },
+            scales: { y: { display: true, title: { display: true, text: '평균대비 편차액 ($)' } } }
+        },
+        plugins: [universalLabelsPlugin]
+    });
+
     // Main Chart 1
     const costCtx = document.getElementById('costChart').getContext('2d');
     new Chart(costCtx, {
@@ -658,7 +690,7 @@
 
         // Chart 2: Classification Pie
         const classCtx = document.getElementById('detailClassChart').getContext('2d');
-        if (detailClassChart) detailClassChart.destroy();
+        if (detailClassChart) classCtx.destroy();
         detailClassChart = new Chart(classCtx, {
             type: 'doughnut',
             data: {
