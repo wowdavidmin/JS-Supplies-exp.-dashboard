@@ -93,7 +93,7 @@
     .f-card .val { font-size: 13px; font-weight: 800; color: var(--navy); }
     
     .charts-wrapper { display: flex; gap: 10px; width: 100%; justify-content: space-between; }
-    .pie-box { width: 50%; position: relative; height: 180px; }
+    .pie-box { width: 50%; position: relative; height: 200px; }
     .pie-box h4 { font-size: 11px; text-align: center; margin-bottom: 5px; color: var(--muted); font-weight: bold; }
 
     .diag-box { background: #fff8eb; border: 1px solid #ffe4b3; border-radius: 8px; padding: 12px; font-size: 12.5px; color: #7c5e10; margin-top: 10px; line-height: 1.6; }
@@ -138,7 +138,7 @@
             <div class="esStat" onclick="openModal('avg')"><span class="iq">ⓘ</span><div class="l">전체 법인 평균 1피스당 비용</div><div class="v">$0.118 <span class="good" style="font-size:11px">안정</span></div></div>
             <div class="esStat" onclick="openModal('eff')"><span class="iq">ⓘ</span><div class="l">실적대비율 최저 / 최고</div><div class="v"><span class="good">JSV 4.21%</span> / <span class="bad">JSJ 11.55%</span></div></div>
             <div class="esStat" onclick="openModal('category')"><span class="iq">ⓘ</span><div class="l">최다 지출 카테고리</div><div class="v">일반 소모품 <span class="bad">50.0%</span></div></div>
-            <div class="esStat" onclick="openModal('mix')"><span class="iq">ⓘ</span><div class="l">비용 성격별 비중</div><div class="v" style="font-size:12.5px;">변동비:고정비:자본적지출성<br>62% : 12% : 26%</div></div>
+            <div class="esStat" onclick="openModal('mix')"><span class="iq">ⓘ</span><div class="l">변동비:고정비:자본적지출성 비용 비중</div><div class="v" style="font-size:12.5px; margin-top:5px;">62% : 12% : 26%</div></div>
             <div class="esStat" onclick="openModal('merged')"><span class="iq">ⓘ</span><div class="l">JSV & JSB 통합 효율</div><div class="v">4.74% <span class="good" style="font-size:11px">우수</span></div></div>
             <div class="esStat" onclick="openModal('gap')"><span class="iq">ⓘ</span><div class="l">법인 간 최대 효율 격차</div><div class="v">JSJ (JSV 대비 <span class="bad">+274%</span>)</div></div>
             <div class="esStat" onclick="openModal('grade')"><span class="iq">ⓘ</span><div class="l">효율 등급 체계</div><div class="v">우수(&lt;5%) · 경고(&gt;10%)</div></div>
@@ -169,32 +169,34 @@
                 <th>③ 일반 소모품</th>
                 <th>④ 합계 사용액</th>
                 <th>1피스당 소모품비</th>
+                <th>KPI (TBD)</th>
                 <th>생산실적대비율</th>
+                <th>KPI (TBD)</th>
             </tr>
         </thead>
         <tbody>
             <tr id="row-JSV" class="clickable-row active-row" onclick="switchFactory('JSV')">
-                <td class="l">1</td><td class="l"><b>JSV (의류)</b></td><td>2,565</td><td>34</td><td>9,386,500</td><td>$173,216</td><td>$248,378</td><td>$421,594</td><td>$843,188</td><td>$0.090</td><td><span class="good">4.21%</span></td>
+                <td class="l">1</td><td class="l"><b>JSV (의류)</b></td><td>2,565</td><td>34</td><td>9,386,500</td><td>$173,216</td><td>$248,378</td><td>$421,594</td><td>$843,188</td><td>$0.090</td><td>-</td><td><span class="good">4.21%</span></td><td>-</td>
             </tr>
             <tr id="row-JSB" class="clickable-row" onclick="switchFactory('JSB')">
-                <td class="l">2</td><td class="l"><b>JSB</b></td><td>11,621</td><td>95</td><td>7,548,849</td><td>$266,582</td><td>$266,063</td><td>$532,645</td><td>$1,065,290</td><td>$0.141</td><td>5.40%</td>
+                <td class="l">2</td><td class="l"><b>JSB</b></td><td>11,621</td><td>95</td><td>7,548,849</td><td>$266,582</td><td>$266,063</td><td>$532,645</td><td>$1,065,290</td><td>$0.141</td><td>-</td><td>5.40%</td><td>-</td>
             </tr>
             <tr id="row-JSV_JSB" class="clickable-row" onclick="switchFactory('JSV_JSB')">
-                <td class="l">-</td><td class="l"><b>JSV & JSB (통합)</b></td><td>14,186</td><td>129</td><td>16,935,349</td><td>$439,798</td><td>$514,441</td><td>$954,239</td><td>$1,908,478</td><td>$0.113</td><td><span class="good">4.74%</span></td>
+                <td class="l">-</td><td class="l"><b>JSV & JSB (통합)</b></td><td>14,186</td><td>129</td><td>16,935,349</td><td>$439,798</td><td>$514,441</td><td>$954,239</td><td>$1,908,478</td><td>$0.113</td><td>-</td><td><span class="good">4.74%</span></td><td>-</td>
             </tr>
             <tr id="row-JSP" class="clickable-row" onclick="switchFactory('JSP')">
-                <td class="l">3</td><td class="l"><b>JSP</b></td><td>2,095</td><td>28</td><td>7,861,695</td><td>$277,799</td><td>$184,328</td><td>$462,127</td><td>$924,254</td><td>$0.118</td><td>5.33%</td>
+                <td class="l">3</td><td class="l"><b>JSP</b></td><td>2,095</td><td>28</td><td>7,861,695</td><td>$277,799</td><td>$184,328</td><td>$462,127</td><td>$924,254</td><td>$0.118</td><td>-</td><td>5.33%</td><td>-</td>
             </tr>
             <tr id="row-JSJ" class="clickable-row" onclick="switchFactory('JSJ')">
-                <td class="l">4</td><td class="l"><b>JSJ</b></td><td>2,213</td><td>17</td><td>10,410,809</td><td>$488,964</td><td>$173,245</td><td>$662,209</td><td>$1,324,418</td><td>$0.127</td><td><span class="bad">11.55%</span></td>
+                <td class="l">4</td><td class="l"><b>JSJ</b></td><td>2,213</td><td>17</td><td>10,410,809</td><td>$488,964</td><td>$173,245</td><td>$662,209</td><td>$1,324,418</td><td>$0.127</td><td>-</td><td><span class="bad">11.55%</span></td><td>-</td>
             </tr>
             <tr class="gh">
-                <td colspan="2"><b>Group Total</b></td><td>18,494</td><td>174</td><td>35,207,853</td><td>$1,206,561</td><td>$872,014</td><td>$2,078,575</td><td>$4,157,150</td><td>$0.118</td><td>-</td>
+                <td colspan="2"><b>전체 법인 합계</b></td><td>18,494</td><td>174</td><td>35,207,853</td><td>$1,206,561</td><td>$872,014</td><td>$2,078,575</td><td>$4,157,150</td><td>$0.118</td><td>-</td><td>-</td><td>-</td>
             </tr>
         </tbody>
     </table>
     
-    <!-- 1번 테이블 하단 평균 대비 편차 분포도 그래프 -->
+    <!-- 1-2. 평균 대비 편차 분포도 그래프 -->
     <h3 style="font-size: 12.5px; margin: 20px 0 5px 0; color: var(--navy); font-weight: 800;">1-2. 각 비용별 전체 법인 평균 대비 편차(Variance) 분포도 (단위: $1,000)</h3>
     <div class="deviation-container">
         <canvas id="deviationChart"></canvas>
@@ -249,7 +251,7 @@
                 <td>$198,663 <span class="pct">(15.0%)</span></td>
             </tr>
             <tr class="gh">
-                <td class="l"><b>Group Total (통합제외)</b></td><td>$4,157,150</td>
+                <td class="l"><b>전체 법인 총계 (통합제외)</b></td><td>$4,157,150</td>
                 <td>$2,579,256 <span class="pct">(62.0%)</span></td>
                 <td>$500,006 <span class="pct">(12.0%)</span></td>
                 <td>$1,077,888 <span class="pct">(26.0%)</span></td>
@@ -355,142 +357,7 @@
 </div>
 
 <script>
-    // Universal Data Labels and Horizontal Mean Lines Custom Plugin
-    const universalLabelsPlugin = {
-        id: 'universalLabels',
-        afterDatasetsDraw(chart) {
-            const ctx = chart.ctx;
-            const chartId = chart.canvas.id;
-            
-            // 1. Draw Horizontal Mean Guidelines for Stacked Cost Chart
-            if (chartId === 'costChart') {
-                const xAxis = chart.scales.x;
-                const yAxis = chart.scales.y;
-                
-                // Standalone 4 factories item mean values (Hardcoded from analysis)
-                // Prod: 301.6k, Machine: 218.0k, General: 519.6k
-                const means = [
-                    { val: 301640, color: 'rgba(31, 56, 100, 0.8)', label: '생산평균($301k)' },
-                    { val: 218002, color: 'rgba(184, 138, 46, 0.8)', label: '기계평균($218k)' },
-                    { val: 519643, color: 'rgba(157, 179, 214, 0.8)', label: '일반평균($519k)' }
-                ];
-                
-                ctx.save();
-                means.forEach(m => {
-                    const yPos = yAxis.getPixelForValue(m.val);
-                    ctx.beginPath();
-                    ctx.lineWidth = 1.5;
-                    ctx.setLineDash([4, 4]);
-                    ctx.strokeStyle = m.color;
-                    ctx.moveTo(xAxis.left, yPos);
-                    ctx.lineTo(xAxis.right, yPos);
-                    ctx.stroke();
-                    
-                    // Draw Line Label Text
-                    ctx.fillStyle = m.color;
-                    ctx.font = 'bold 9px "Malgun Gothic"';
-                    ctx.textAlign = 'right';
-                    ctx.fillText(m.label, xAxis.right - 5, yPos - 3);
-                });
-                ctx.restore();
-            }
-
-            // 2. Draw Horizontal Mean Line for Detailed Trend Chart
-            if (chartId === 'trendChart' && chart.data.datasets[0]) {
-                const xAxis = chart.scales.x;
-                const yAxis = chart.scales.y;
-                
-                // Calculate average monthly cost for current view
-                let totalSum = 0;
-                for(let idx=0; idx<5; idx++) {
-                    totalSum += chart.data.datasets[0].data[idx] + chart.data.datasets[1].data[idx] + chart.data.datasets[2].data[idx];
-                }
-                const monthlyMean = totalSum / 5;
-                const yPos = yAxis.getPixelForValue(monthlyMean);
-                
-                ctx.save();
-                ctx.beginPath();
-                ctx.lineWidth = 1.5;
-                ctx.setLineDash([3, 3]);
-                ctx.strokeStyle = '#475569';
-                ctx.moveTo(xAxis.left, yPos);
-                ctx.lineTo(xAxis.right, yPos);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#475569';
-                ctx.font = 'bold 9px "Malgun Gothic"';
-                ctx.textAlign = 'left';
-                ctx.fillText('월평균 지출선($' + Math.round(monthlyMean/1000) + 'k)', xAxis.left + 5, yPos - 4);
-                ctx.restore();
-            }
-
-            // 3. Render Numeric Values Text inside/above geometries
-            ctx.textAlign = 'center';
-            chart.data.datasets.forEach((dataset, i) => {
-                const meta = chart.getDatasetMeta(i);
-                if (meta.hidden) return;
-                
-                meta.data.forEach((element, index) => {
-                    const val = dataset.data[index];
-                    if (val === undefined || val === null || val === 0) return;
-                    
-                    let text = '';
-                    if (chartId === 'ratioChart') {
-                        if (dataset.type === 'line') {
-                            text = val.toFixed(2) + '%';
-                        } else {
-                            text = '$' + val.toFixed(3);
-                        }
-                    } else if (chartId === 'deviationChart') {
-                        text = (val > 0 ? '+' : '') + Math.round(val/1000) + 'k';
-                    } else { 
-                        if (dataset.type === 'line') {
-                            text = Math.round(val/1000) + 'k';
-                        } else {
-                            let stackTotal = 0;
-                            chart.data.datasets.forEach((ds, dsIdx) => {
-                                const dsMeta = chart.getDatasetMeta(dsIdx);
-                                if (!dsMeta.hidden && (ds.type === 'bar' || ds.type === undefined)) {
-                                    stackTotal += (ds.data[index] || 0);
-                                }
-                            });
-                            const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
-                            text = Math.round(val/1000) + 'k (' + pct + ')';
-                        }
-                    }
-                    
-                    if (dataset.type === 'line') {
-                        ctx.fillStyle = dataset.borderColor || '#dc2626';
-                        ctx.font = 'bold 10px "Malgun Gothic"';
-                        ctx.textBaseline = 'bottom';
-                        const pos = element.tooltipPosition();
-                        ctx.fillText(text, pos.x, pos.y - 6);
-                    } else { 
-                        ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
-                        ctx.font = 'bold 9px "Malgun Gothic"'; 
-                        if(chartId === 'deviationChart') {
-                            ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
-                        } else {
-                            ctx.textBaseline = 'middle';
-                        }
-                        const pos = element.tooltipPosition();
-                        const yCenter = chartId === 'deviationChart' ? pos.y + (val >= 0 ? -4 : 4) : (element.base + element.y) / 2;
-                        
-                        if (chartId === 'deviationChart' || Math.abs(element.base - element.y) > 16) {
-                            if(chartId !== 'deviationChart') {
-                                ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                                ctx.shadowBlur = 3;
-                            }
-                            ctx.fillText(text, pos.x, yCenter);
-                            ctx.shadowBlur = 0;
-                        }
-                    }
-                });
-            });
-        }
-    };
-
-    // Global Data Definitions
+    // [0] Global Data Definitions FIRST so it is always accessible to chart logic
     const factoryData = {
         JSV: {
             name: "JSV (의류)", emp: "2,565", lines: "34", empPerLine: "75.4", costPerEmp: "328.7",
@@ -533,14 +400,196 @@
     let detailClassChart = null;
     let detailTrendChart = null;
 
-    // Main Chart Renderings
-    const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
+    // Modal Functions
+    const EXPL = {
+        total: { t: '전체 법인 누적 사용액', f: '전체 법인 누적 소모품비 합산', b: '통합 법인 중복을 제외한 4개 법인의 순수 합계 금액입니다.' },
+        avg: { t: '전체 법인 평균 1피스당 비용', f: '전체 법인 총 소모품비 ÷ 전체 법인 누적 생산수량', b: '전체 법인의 평균 1피스당 지출 비용입니다.' },
+        eff: { t: '실적대비율 최저 / 최고', f: '생산실적대비율 = 소모품비 ÷ 생산실적', b: '가장 효율적인 법인(JSV)과 가장 비효율적인 법인(JSJ)의 대조입니다.' },
+        category: { t: '최다 지출 카테고리', f: '일반 소모품 누적 합계 ÷ 전체 합계', b: '사무용, 청소, 방역 등 일반 소모품이 전체 지출의 절반을 차지하고 있습니다.' },
+        mix: { t: '변동비:고정비:자본적지출성 비용 비중', f: '변동비 : 고정비 : 자본적지출성', b: '분석용 매핑 기준에 따른 전체 법인 성격별 지출 비율입니다.' },
+        merged: { t: 'JSV & JSB 통합 효율', f: '(JSV 소모품비 + JSB 소모품비) ÷ (JSV 실적 + JSB 실적)', b: '동일 부지를 사용하는 두 법인을 하나의 콤플렉스로 묶었을 때의 시너지 지표입니다.' },
+        gap: { t: '법인 간 최대 효율 격차', f: '(최대 비율 ÷ 최저 비율) - 1', b: 'JSJ(11.55%)는 JSV(4.21%) 대비 약 274% 높은 비율을 보이고 있습니다.' },
+        grade: { t: '효율 등급 체계', f: '', b: '우수: 5% 미만<br>보통: 5% ~ 10%<br>경고: 10% 이상' }
+    };
+
+    function openModal(k){
+        const e = EXPL[k]; if(!e) return;
+        document.getElementById('mTitle').textContent = e.t;
+        document.getElementById('mFormula').style.display = e.f ? 'block' : 'none';
+        document.getElementById('mFormula').textContent = e.f;
+        document.getElementById('mBody').innerHTML = e.b;
+        document.getElementById('modal').classList.add('show');
+    }
+    function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+    function toggleES(){
+        const b = document.getElementById('esBody');
+        const c = document.getElementById('esCaret');
+        if (b.style.display === 'none') { b.style.display = 'block'; c.textContent = '▼'; } 
+        else { b.style.display = 'none'; c.textContent = '▶'; }
+    }
+
+    // [1] Bulletproof % Label Plugin inside Doughnut Slices
+    const doughnutLabelsPlugin = {
+        id: 'doughnutLabels',
+        afterDraw(chart) {
+            try {
+                if (chart.config.type !== 'doughnut') return;
+                const ctx = chart.ctx;
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    if (!meta || !meta.data) return;
+                    meta.data.forEach((element, index) => {
+                        const dataVal = dataset.data[index];
+                        if (dataVal <= 0) return;
+                        const total = dataset.data.reduce((a, b) => a + b, 0);
+                        const percent = ((dataVal / total) * 100).toFixed(1) + '%';
+                        
+                        const pos = element.tooltipPosition();
+                        ctx.save();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 11px "Malgun Gothic"';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                        ctx.shadowBlur = 3;
+                        ctx.fillText(percent, pos.x, pos.y);
+                        ctx.restore();
+                    });
+                });
+            } catch (err) { console.error("Doughnut label plugin error:", err); }
+        }
+    };
+    Chart.register(doughnutLabelsPlugin);
+
+    // [2] Guidelines & Cartesian Data Labels Plugin
+    const universalLabelsPlugin = {
+        id: 'universalLabels',
+        afterDatasetsDraw(chart) {
+            try {
+                const ctx = chart.ctx;
+                const chartId = chart.canvas.id;
+                
+                // 1. Draw Guidelines for costChart
+                if (chartId === 'costChart') {
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    const means = [
+                        { val: 301640, color: 'rgba(31, 56, 100, 0.8)', label: '생산평균($301k)' },
+                        { val: 218002, color: 'rgba(184, 138, 46, 0.8)', label: '기계평균($218k)' },
+                        { val: 519643, color: 'rgba(157, 179, 214, 0.8)', label: '일반평균($519k)' }
+                    ];
+                    ctx.save();
+                    means.forEach(m => {
+                        const yPos = yAxis.getPixelForValue(m.val);
+                        ctx.beginPath(); ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]); ctx.strokeStyle = m.color;
+                        ctx.moveTo(xAxis.left, yPos); ctx.lineTo(xAxis.right, yPos); ctx.stroke();
+                        ctx.fillStyle = m.color; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'right';
+                        ctx.fillText(m.label, xAxis.right - 5, yPos - 3);
+                    });
+                    ctx.restore();
+                }
+
+                // 2. Draw Guidelines for trendChart
+                if (chartId === 'trendChart' && chart.data.datasets[0]) {
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    let totalSum = 0;
+                    for(let idx=0; idx<5; idx++) {
+                        totalSum += (chart.data.datasets[0].data[idx] || 0) + (chart.data.datasets[1].data[idx] || 0) + (chart.data.datasets[2].data[idx] || 0);
+                    }
+                    const monthlyMean = totalSum / 5;
+                    const yPos = yAxis.getPixelForValue(monthlyMean);
+                    ctx.save();
+                    ctx.beginPath(); ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]); ctx.strokeStyle = '#475569';
+                    ctx.moveTo(xAxis.left, yPos); ctx.lineTo(xAxis.right, yPos); ctx.stroke();
+                    ctx.fillStyle = '#475569'; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'left';
+                    ctx.fillText('월평균 지출선($' + Math.round(monthlyMean/1000) + 'k)', xAxis.left + 5, yPos - 4);
+                    ctx.restore();
+                }
+
+                // 3. Render Stacked Bar & Line Data Values Text
+                ctx.save();
+                ctx.textAlign = 'center';
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    if (!meta || meta.hidden || !meta.data) return;
+                    
+                    meta.data.forEach((element, index) => {
+                        const val = dataset.data[index];
+                        if (val === undefined || val === null || val === 0) return;
+                        
+                        let text = '';
+                        if (chartId === 'ratioChart') {
+                            if (dataset.type === 'line') text = val.toFixed(2) + '%';
+                            else text = '$' + val.toFixed(3);
+                        } else if (chartId === 'deviationChart') {
+                            text = (val > 0 ? '+' : '') + Math.round(val/1000) + 'k';
+                        } else { 
+                            if (dataset.type === 'line') {
+                                text = Math.round(val/1000) + 'k';
+                            } else {
+                                let stackTotal = 0;
+                                if (chartId === 'costChart') {
+                                    if (index === 0) stackTotal = 173216 + 248378 + 421594;
+                                    else if (index === 1) stackTotal = 266582 + 266063 + 532645;
+                                    else if (index === 2) stackTotal = 439798 + 514441 + 954239;
+                                    else if (index === 3) stackTotal = 277799 + 184328 + 462127;
+                                    else if (index === 4) stackTotal = 488964 + 173245 + 662209;
+                                } else if (chartId === 'trendChart') {
+                                    const factoryKey = chart.canvas.getAttribute('data-factory-key') || 'JSV';
+                                    const activeFactory = factoryData[factoryKey];
+                                    if(activeFactory) {
+                                        const currentTotal = activeFactory.prod + activeFactory.machine + activeFactory.general;
+                                        const temp_t_m = activeFactory.dist.map(p => Math.floor(currentTotal * p));
+                                        const sum_temp = temp_t_m.reduce((a,b)=>a+b,0);
+                                        temp_t_m[4] += (currentTotal - sum_temp);
+                                        stackTotal = temp_t_m[index];
+                                    }
+                                }
+                                const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
+                                text = Math.round(val/1000) + 'k (' + pct + ')';
+                            }
+                        }
+                        
+                        if (dataset.type === 'line') {
+                            ctx.fillStyle = dataset.borderColor || '#dc2626';
+                            ctx.font = 'bold 10px "Malgun Gothic"'; ctx.textBaseline = 'bottom';
+                            const pos = element.tooltipPosition();
+                            ctx.fillText(text, pos.x, pos.y - 8);
+                        } else { 
+                            ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
+                            ctx.font = 'bold 9px "Malgun Gothic"'; 
+                            if(chartId === 'deviationChart') {
+                                ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
+                            } else {
+                                ctx.textBaseline = 'middle';
+                            }
+                            const pos = element.tooltipPosition();
+                            const yCenter = chartId === 'deviationChart' ? pos.y + (val >= 0 ? -4 : 4) : (element.base + element.y) / 2;
+                            
+                            if (chartId === 'deviationChart' || Math.abs(element.base - element.y) > 16) {
+                                if(chartId !== 'deviationChart') {
+                                    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3;
+                                }
+                                ctx.fillText(text, pos.x, yCenter);
+                                ctx.shadowBlur = 0;
+                            }
+                        }
+                    });
+                });
+                ctx.restore();
+            } catch (err) { console.error("Cartesian label plugin error:", err); }
+        }
+    };
+
+    // Static Base Comparison Charts Setup
+    const baseLabels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
     
-    const costCtx = document.getElementById('costChart').getContext('2d');
-    new Chart(costCtx, {
+    // costChart Init
+    new Chart(document.getElementById('costChart').getContext('2d'), {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: baseLabels,
             datasets: [
                 { label: '① 생산 소모품', data: [173216, 266582, 439798, 277799, 488964], backgroundColor: '#1f3864' },
                 { label: '② 기계부속 수리', data: [248378, 266063, 514441, 184328, 173245], backgroundColor: '#b88a2e' },
@@ -549,16 +598,16 @@
         },
         options: {
             responsive: true, maintainAspectRatio: false,
-            scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: v => '$' + (v/1000) + 'k' } } },
+            scales: { x: { stacked: true }, y: { stacked: true, display: false } },
             plugins: { legend: { position: 'top' } }
         },
         plugins: [universalLabelsPlugin]
     });
 
-    const ratioCtx = document.getElementById('ratioChart').getContext('2d');
-    new Chart(ratioCtx, {
+    // ratioChart Init
+    new Chart(document.getElementById('ratioChart').getContext('2d'), {
         data: {
-            labels: labels,
+            labels: baseLabels,
             datasets: [
                 { type: 'line', label: '생산실적대비율 (%)', data: [4.21, 5.40, 4.74, 5.33, 11.55], borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 2, tension: 0.2, yAxisID: 'y1' },
                 { type: 'bar', label: '1피스당 소모품비 ($)', data: [0.090, 0.141, 0.113, 0.118, 0.127], backgroundColor: '#e5e7eb', yAxisID: 'y' }
@@ -575,8 +624,8 @@
         plugins: [universalLabelsPlugin]
     });
 
-    const devCtxObj = document.getElementById('deviationChart').getContext('2d');
-    new Chart(devCtxObj, {
+    // deviationChart Init
+    new Chart(document.getElementById('deviationChart').getContext('2d'), {
         type: 'bar',
         data: {
             labels: ['JSV(의류)', 'JSB', 'JSP', 'JSJ'],
@@ -616,11 +665,12 @@
         </tr>`;
     }
 
+    // Interactive Tab Controller Logic
     function switchFactory(key) {
         document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('active-row'));
         if(document.getElementById('row-' + key)) document.getElementById('row-' + key).classList.add('active-row');
         document.querySelectorAll('.btn-factory').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('btn-' + key).classList.add('active');
+        if(document.getElementById('btn-' + key)) document.getElementById('btn-' + key).classList.add('active');
 
         const d = factoryData[key];
         document.getElementById('detailTitle').textContent = d.name + " 구조 및 비중 분석";
@@ -662,26 +712,38 @@
         let currentCum = 0;
         const cum_t_m = t_m.map(val => { currentCum += val; return currentCum; });
 
-        // Trend Chart
-        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        // High Z-index Gradient Line Mix Chart Processing
+        const trendCanvas = document.getElementById('trendChart');
+        trendCanvas.setAttribute('data-factory-key', key);
+        const trendCtx = trendCanvas.getContext('2d');
         if (detailTrendChart) detailTrendChart.destroy();
+        
+        const gradientLine = trendCtx.createLinearGradient(0, 0, 400, 0);
+        gradientLine.addColorStop(0, '#f43f5e'); 
+        gradientLine.addColorStop(0.5, '#dc2626'); 
+        gradientLine.addColorStop(1, '#9f1239'); 
+
         detailTrendChart = new Chart(trendCtx, {
             type: 'bar',
             data: {
                 labels: ['1월', '2월', '3월', '4월', '5월'],
                 datasets: [
-                    { type: 'bar', label: '생산소모품', data: prod_m, backgroundColor: '#1f3864' },
-                    { type: 'bar', label: '기계수리', data: mach_m, backgroundColor: '#b88a2e' },
-                    { type: 'bar', label: '일반소모품', data: gen_m, backgroundColor: '#9db3d6' },
-                    { type: 'line', label: '전체 누적 합계', data: cum_t_m, borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 2, pointRadius: 4, tension: 0.1, yAxisID: 'y1' }
+                    { type: 'bar', label: '생산소모품', data: prod_m, backgroundColor: '#1f3864', order: 2 },
+                    { type: 'bar', label: '기계수리', data: mach_m, backgroundColor: '#b88a2e', order: 2 },
+                    { type: 'bar', label: '일반소모품', data: gen_m, backgroundColor: '#9db3d6', order: 2 },
+                    { 
+                        type: 'line', label: '전체 누적 합계', data: cum_t_m, 
+                        borderColor: gradientLine, backgroundColor: 'transparent',
+                        borderWidth: 4.5, pointBackgroundColor: '#dc2626', pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5, pointRadius: 5, tension: 0.1, yAxisID: 'y1', order: 1 
+                    }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                layout: { padding: { top: 15, right: 10 } },
+                layout: { padding: { top: 20, right: 10 } },
                 plugins: {
-                    legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 8 } },
-                    tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': $' + context.raw.toLocaleString(); } } }
+                    legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 8 } }
                 },
                 scales: {
                     x: { stacked: true },
@@ -692,7 +754,7 @@
             plugins: [universalLabelsPlugin]
         });
 
-        // Chart 1: Category Pie
+        // Chart 1: Category Doughnut Chart
         const pieCtx = document.getElementById('detailPieChart').getContext('2d');
         if (detailPieChart) detailPieChart.destroy();
         detailPieChart = new Chart(pieCtx, {
@@ -704,10 +766,10 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } }, layout: { padding: 10 } }
         });
 
-        // Chart 2: Classification Pie
+        // Chart 2: Classification Doughnut Chart
         const classCtx = document.getElementById('detailClassChart').getContext('2d');
         if (detailClassChart) detailClassChart.destroy();
-        detailClassChart = new Chart(classCtx, {
+        classCtx = new Chart(classCtx, {
             type: 'doughnut',
             data: {
                 labels: ['변동비', '고정비', '자본적지출'],
@@ -717,7 +779,7 @@
         });
     }
 
-    // Initialize Page
+    // Trigger initial active view
     window.onload = function() { switchFactory('JSV'); };
 </script>
 </body>
