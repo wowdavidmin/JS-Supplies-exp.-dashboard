@@ -68,8 +68,7 @@
     
     .good { color: var(--green); font-weight: 700; }
     .bad { color: var(--red); font-weight: 700; }
-    .pct { color: var(--muted); font-size: 11px; margin-left: 6px; }
-    .gh .pct { color: var(--navy); font-weight: normal; }
+    .pct { color: var(--muted); font-size: 11px; margin-left: 6px; font-weight: normal; }
 
     .detail-section { border-top: 3px solid var(--navy); padding-top: 8px; }
     .factory-selector { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -95,6 +94,15 @@
     
     .compact-table th, .compact-table td { padding: 4px 6px; font-size: 11px; }
     
+    /* Modal Styles */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .modal-bg.show { display: flex; }
+    .modal { background: #fff; border-radius: 12px; max-width: 460px; width: 100%; padding: 18px 20px; box-shadow: 0 12px 44px rgba(0,0,0,.35); }
+    .modal h4 { color: var(--navy); font-size: 15px; margin-bottom: 8px; }
+    .modal .formula { background: #eef2f8; border-radius: 8px; padding: 9px 12px; font-size: 13px; margin: 8px 0; color: var(--navy); font-weight: 800; }
+    .modal .mb { font-size: 12.5px; color: #374151; line-height: 1.65; }
+    .modal .mclose { margin-top: 14px; text-align: center; background: var(--navy); color: #fff; border-radius: 7px; padding: 8px; cursor: pointer; font-weight: 700; }
+
     @media(max-width:1024px){ .grid2, .grid-detail { grid-template-columns: 1fr; } .charts-wrapper { flex-direction: column; } .pie-box { width: 100%; height: 200px; margin-bottom: 20px;} }
 </style>
 </head>
@@ -104,6 +112,33 @@
     <div class="head">
         <h1>JS 해외생산법인 소모품비 현황 및 비용 성격별 분석 대시보드</h1>
         <span class="sub">2026년 05월 누적 실적 기준 · 5개 법인 및 통합 단지 연동 비교</span>
+    </div>
+</div>
+
+<!-- Executive Summary -->
+<div class="es">
+    <div class="estag" onclick="toggleES()" style="cursor:pointer;user-select:none">
+        <span id="esCaret">▼</span> EXECUTIVE SUMMARY · 2026년 5월 마감 <span style="color:#9db3d6;font-weight:700">· KPI 클릭 = 계산식 설명 · 제목 클릭=접기</span>
+    </div>
+    <div id="esBody">
+        <h2>생산실적대비율 편차 심화 — 변동비 통제 우수하나, 통합 단지 시너지 및 하위 법인 집중 관리 필요</h2>
+        <div class="esStats">
+            <div class="esStat" onclick="openModal('total')"><span class="iq">ⓘ</span><div class="l">그룹 누적 사용액 (1~5월)</div><div class="v">$4,157,150</div></div>
+            <div class="esStat" onclick="openModal('avg')"><span class="iq">ⓘ</span><div class="l">그룹 평균 1피스당 비용</div><div class="v">$0.118 <span class="good" style="font-size:11px">안정</span></div></div>
+            <div class="esStat" onclick="openModal('eff')"><span class="iq">ⓘ</span><div class="l">실적대비율 최저 / 최고</div><div class="v"><span class="good">JSV 4.21%</span> / <span class="bad">JSJ 11.55%</span></div></div>
+            <div class="esStat" onclick="openModal('category')"><span class="iq">ⓘ</span><div class="l">최다 지출 카테고리</div><div class="v">일반 소모품 <span class="bad">50.0%</span></div></div>
+            <div class="esStat" onclick="openModal('mix')"><span class="iq">ⓘ</span><div class="l">변동 : 고정 : 자본적 비중</div><div class="v">62% : 12% : 26%</div></div>
+            <div class="esStat" onclick="openModal('merged')"><span class="iq">ⓘ</span><div class="l">JSV & JSB 통합 효율</div><div class="v">4.74% <span class="good" style="font-size:11px">우수</span></div></div>
+            <div class="esStat" onclick="openModal('gap')"><span class="iq">ⓘ</span><div class="l">법인 간 최대 효율 격차</div><div class="v">JSJ (JSV 대비 <span class="bad">+274%</span>)</div></div>
+            <div class="esStat" onclick="openModal('grade')"><span class="iq">ⓘ</span><div class="l">효율 등급 체계</div><div class="v">우수(&lt;5%) · 경고(&gt;10%)</div></div>
+        </div>
+        <ul>
+            <li><b>비교 원칙</b> — 법인별 생산 품목(의류, 핸드백 등) 및 단가 차이가 존재하므로 절대액 비교보다는 <u>생산실적대비율(%)</u>과 <u>1피스당 소모품비</u>를 교차 검증해야 함.</li>
+            <li><b>그룹 전체 추세</b> — 그룹 전체 누적 소모품비는 $4.15M이며, 생산 비례형 변동비 비중(62%) 대비 기계수리 등 자본적 지출 비중(26%)이 다소 높은 편. 재단기 등 공통 장비 노후화가 주원인.</li>
+            <li><b>JSV(의류) & JSB 통합 단지</b> — JSV(4.21%)와 JSB(5.40%)의 통합 생산실적대비율은 <b>4.74%</b>로 매우 우수. 동일 부지 내 MRO(일반 소모품) 공동 구매 시 고정비(5.1%) 추가 절감 여력 충분.</li>
+            <li><b>JSJ 집중 점검 요망</b> — JSJ는 생산실적대비율 <span class="bad">11.55%</span>(1피스당 $0.127)로 타 법인 대비 변동비/고정비 비율이 압도적으로 높음. 일반소모품($662K) 낭비 요소 현장 전수조사 시급.</li>
+            <li><b>JSP 안정세 유지</b> — 실적대비율 5.33%로 무난하나, 정밀 장비 부속(레이저 튜브 등) 지출이 꾸준히 발생하여 자본적 지출(25%) 증가 추이 모니터링 필요.</li>
+        </ul>
     </div>
 </div>
 
@@ -133,7 +168,7 @@
             <tr id="row-JSB" class="clickable-row" onclick="switchFactory('JSB')">
                 <td class="l">2</td><td class="l"><b>JSB</b></td><td>11,621</td><td>95</td><td>7,548,849</td><td>$266,582</td><td>$266,063</td><td>$532,645</td><td>$1,065,290</td><td>$0.141</td><td>5.40%</td>
             </tr>
-            <tr id="row-JSV_JSB" class="clickable-row" onclick="switchFactory('JSV_JSB')">
+            <tr id="row-JSV_JSB" class="clickable-row" style="background-color: var(--highlight);" onclick="switchFactory('JSV_JSB')">
                 <td class="l">-</td><td class="l"><b>JSV & JSB (통합)</b></td><td>14,186</td><td>129</td><td>16,935,349</td><td>$439,798</td><td>$514,441</td><td>$954,239</td><td>$1,908,478</td><td>$0.113</td><td><span class="good">4.74%</span></td>
             </tr>
             <tr id="row-JSP" class="clickable-row" onclick="switchFactory('JSP')">
@@ -157,9 +192,9 @@
             <tr>
                 <th class="l">법인명</th>
                 <th>총 합계 사용액</th>
-                <th>변동비 추산액 (비중)</th>
-                <th>고정비 추산액 (비중)</th>
-                <th>자본적지출 추산액 (비중)</th>
+                <th>변동비 추산액</th>
+                <th>고정비 추산액</th>
+                <th>자본적지출성 추산액</th>
             </tr>
         </thead>
         <tbody>
@@ -218,11 +253,11 @@
 <!-- Detailed Analysis Section -->
 <div class="detail-section">
     <div class="factory-selector">
-        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">1. JSV (의류) 분석</button>
-        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">2. JSB 분석</button>
-        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">3. JSV & JSB (통합) 분석</button>
-        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">4. JSP 분석</button>
-        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">5. JSJ 분석</button>
+        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">JSV (의류) 분석</button>
+        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">JSB 분석</button>
+        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">JSV & JSB (통합) 분석</button>
+        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">JSP 분석</button>
+        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">JSJ 분석</button>
     </div>
 
     <div class="grid-detail">
@@ -270,7 +305,6 @@
                 </tbody>
             </table>
             
-            <!-- 신규: 1~5월 추이 차트 -->
             <h3 style="font-size: 12px; margin: 15px 0 5px 0; color:var(--muted);">월별 비용 발생 추이 및 전체 누적 합계 (단위: $1,000)</h3>
             <div class="chart-container" style="height: 220px; width: 100%;">
                 <canvas id="trendChart"></canvas>
@@ -287,10 +321,48 @@
 </div>
 
 <div class="foot">
-    데이터 기준일: 2026년 05월 마감 Raw Data · 막대그래프(월별 추이, 전체 법인 비교) 금액 및 % 비율 라벨 동시 표기 적용 버전
+    데이터 기준일: 2026년 05월 마감 Raw Data · 차트 내 백분율(%) 자동 표기 적용 통합 버전
+</div>
+
+<!-- Modal for KPIs -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <h4 id="mTitle"></h4>
+        <div class="formula" id="mFormula" style="display:none;"></div>
+        <div class="mb" id="mBody"></div>
+        <div class="mclose" onclick="closeModal()">닫기</div>
+    </div>
 </div>
 
 <script>
+    // Modal Functions
+    const EXPL = {
+        total: { t: '그룹 누적 사용액', f: '전체 법인 누적 소모품비 합산', b: '통합 법인 중복을 제외한 4개 법인의 순수 합계 금액입니다.' },
+        avg: { t: '그룹 평균 1피스당 비용', f: '그룹 총 소모품비 ÷ 그룹 누적 생산수량', b: '그룹 전체의 평균 1피스당 지출 비용입니다.' },
+        eff: { t: '실적대비율 최저 / 최고', f: '생산실적대비율 = 소모품비 ÷ 생산실적', b: '가장 효율적인 법인(JSV)과 가장 비효율적인 법인(JSJ)의 대조입니다.' },
+        category: { t: '최다 지출 카테고리', f: '일반 소모품 누적 합계 ÷ 전체 합계', b: '사무용, 청소, 방역 등 일반 소모품이 전체 지출의 절반을 차지하고 있습니다.' },
+        mix: { t: '성격별 비용 비중', f: '변동비 : 고정비 : 자본적지출', b: '분석용 매핑 기준에 따른 그룹 전체 성격별 지출 비율입니다.' },
+        merged: { t: 'JSV & JSB 통합 효율', f: '(JSV 소모품비 + JSB 소모품비) ÷ (JSV 실적 + JSB 실적)', b: '동일 부지를 사용하는 두 법인을 하나의 콤플렉스로 묶었을 때의 시너지 지표입니다.' },
+        gap: { t: '법인 간 최대 효율 격차', f: '(최대 비율 ÷ 최저 비율) - 1', b: 'JSJ(11.55%)는 JSV(4.21%) 대비 약 274% 높은 비율을 보이고 있습니다.' },
+        grade: { t: '효율 등급 체계', f: '', b: '우수: 5% 미만<br>보통: 5% ~ 10%<br>경고: 10% 이상' }
+    };
+
+    function openModal(k){
+        const e = EXPL[k]; if(!e) return;
+        document.getElementById('mTitle').textContent = e.t;
+        document.getElementById('mFormula').style.display = e.f ? 'block' : 'none';
+        document.getElementById('mFormula').textContent = e.f;
+        document.getElementById('mBody').innerHTML = e.b;
+        document.getElementById('modal').classList.add('show');
+    }
+    function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+    function toggleES(){
+        const b = document.getElementById('esBody');
+        const c = document.getElementById('esCaret');
+        if (b.style.display === 'none') { b.style.display = 'block'; c.textContent = '▼'; } 
+        else { b.style.display = 'none'; c.textContent = '▶'; }
+    }
+
     // Plugin 1: Doughnut chart percentages
     Chart.register({
         id: 'percentLabels',
@@ -304,7 +376,6 @@
                     if(dataVal <= 0) return;
                     const total = dataset.data.reduce((a,b) => a+b, 0);
                     const percent = ((dataVal / total) * 100).toFixed(1) + '%';
-                    
                     const pos = element.tooltipPosition();
                     ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 11px "Malgun Gothic"';
@@ -319,13 +390,12 @@
         }
     });
 
-    // Plugin 2: Universal Data Labels for Bar and Line Charts (Upgraded to include %)
+    // Plugin 2: Universal Data Labels (Upgraded to include %)
     const universalLabelsPlugin = {
         id: 'universalLabels',
         afterDatasetsDraw(chart) {
             const ctx = chart.ctx;
             ctx.textAlign = 'center';
-            
             chart.data.datasets.forEach((dataset, i) => {
                 const meta = chart.getDatasetMeta(i);
                 if (meta.hidden) return;
@@ -338,13 +408,9 @@
                     const chartId = chart.canvas.id;
                     
                     if (chartId === 'ratioChart') {
-                        if (dataset.type === 'line') {
-                            text = val.toFixed(2) + '%';
-                        } else {
-                            text = '$' + val.toFixed(3);
-                        }
+                        if (dataset.type === 'line') text = val.toFixed(2) + '%';
+                        else text = '$' + val.toFixed(3);
                     } else { 
-                        // costChart & trendChart: Calculate segment percentage for stacked bars
                         if (dataset.type === 'line') {
                             text = Math.round(val/1000) + 'k';
                         } else {
@@ -360,23 +426,19 @@
                         }
                     }
                     
-                    // Render Line Chart Label
                     if (dataset.type === 'line') {
                         ctx.fillStyle = dataset.borderColor || '#dc2626';
                         ctx.font = 'bold 10px "Malgun Gothic"';
                         ctx.textBaseline = 'bottom';
                         const pos = element.tooltipPosition();
                         ctx.fillText(text, pos.x, pos.y - 6);
-                    } 
-                    // Render Bar Chart Label
-                    else { 
+                    } else { 
                         ctx.fillStyle = '#ffffff';
                         ctx.font = 'bold 9.5px "Malgun Gothic"'; 
                         ctx.textBaseline = 'middle';
                         const pos = element.tooltipPosition();
                         const yCenter = (element.base + element.y) / 2;
                         
-                        // Only draw if the bar is tall enough to fit the text without overflowing
                         if (Math.abs(element.base - element.y) > 16) {
                             ctx.shadowColor = 'rgba(0,0,0,0.6)';
                             ctx.shadowBlur = 3;
@@ -389,7 +451,7 @@
         }
     };
 
-    // Global Data Definitions matching exact specifications
+    // Global Data Definitions
     const factoryData = {
         JSV: {
             name: "JSV (의류)", emp: "2,565", lines: "34", empPerLine: "75.4", costPerEmp: "328.7",
@@ -432,10 +494,10 @@
     let detailClassChart = null;
     let detailTrendChart = null;
 
-    // Main Chart 1: Cost Comparison (now with universalLabelsPlugin % support)
     const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
     Chart.defaults.color = '#475569';
     
+    // Main Chart 1
     const costCtx = document.getElementById('costChart').getContext('2d');
     new Chart(costCtx, {
         type: 'bar',
@@ -455,7 +517,7 @@
         plugins: [universalLabelsPlugin]
     });
 
-    // Main Chart 2: Ratio Comparison
+    // Main Chart 2
     const ratioCtx = document.getElementById('ratioChart').getContext('2d');
     new Chart(ratioCtx, {
         data: {
@@ -476,7 +538,6 @@
         plugins: [universalLabelsPlugin]
     });
 
-    // Distribute Total into 5 Months array
     function distribute(total, dist) {
         let arr = dist.map(p => Math.floor(total * p));
         let sum = arr.reduce((a, b) => a + b, 0);
@@ -499,7 +560,6 @@
         </tr>`;
     }
 
-    // Dynamic Switch Function
     function switchFactory(key) {
         document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('active-row'));
         if(document.getElementById('row-' + key)) document.getElementById('row-' + key).classList.add('active-row');
@@ -515,8 +575,6 @@
         document.getElementById('diagBox').innerHTML = d.diag;
 
         const total = d.prod + d.machine + d.general;
-        
-        // Calculate 5-month arrays
         const prod_m = distribute(d.prod, d.dist);
         const mach_m = distribute(d.machine, d.dist);
         const gen_m = distribute(d.general, d.dist);
@@ -545,11 +603,10 @@
 
         document.getElementById('detailTableBody').innerHTML = html;
 
-        // 누적 합계 배열 생성 (Month 1 -> Month 1+2 -> ...)
         let currentCum = 0;
         const cum_t_m = t_m.map(val => { currentCum += val; return currentCum; });
 
-        // Trend Chart (Stacked Bar + Line) with universalLabelsPlugin
+        // Trend Chart
         const trendCtx = document.getElementById('trendChart').getContext('2d');
         if (detailTrendChart) detailTrendChart.destroy();
         detailTrendChart = new Chart(trendCtx, {
