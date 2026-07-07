@@ -428,7 +428,7 @@
         else { b.style.display = 'none'; c.textContent = '▶'; }
     }
 
-    // [1] Bulletproof % Label Plugin inside Doughnut Slices
+    // [1] Bulletproof % Label Plugin inside Doughnut Slices (Fixed color & shadow config)
     const doughnutLabelsPlugin = {
         id: 'doughnutLabels',
         afterDraw(chart) {
@@ -461,7 +461,7 @@
     };
     Chart.register(doughnutLabelsPlugin);
 
-    // [2] Guidelines & Cartesian Data Labels Plugin
+    // [2] Guidelines & Cartesian Data Labels Plugin (Upgraded to draw red monthly totals on top of bars)
     const universalLabelsPlugin = {
         id: 'universalLabels',
         afterDatasetsDraw(chart) {
@@ -505,6 +505,32 @@
                     ctx.fillStyle = '#475569'; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'left';
                     ctx.fillText('월평균 지출선($' + Math.round(monthlyMean/1000) + 'k)', xAxis.left + 5, yPos - 4);
                     ctx.restore();
+                    
+                    // Render Red Monthly Totals text on top of each stacked bar
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillStyle = 'var(--red)';
+                    ctx.font = 'bold 11px "Malgun Gothic"';
+                    
+                    const meta = chart.getDatasetMeta(2); // Topmost stacked block (일반소모품)
+                    if(meta && meta.data) {
+                        meta.data.forEach((element, index) => {
+                            const factoryKey = chart.canvas.getAttribute('data-factory-key') || 'JSV';
+                            const activeFactory = factoryData[factoryKey];
+                            if(activeFactory) {
+                                const currentTotal = activeFactory.prod + activeFactory.machine + activeFactory.general;
+                                const temp_t_m = activeFactory.dist.map(p => Math.floor(currentTotal * p));
+                                const sum_temp = temp_t_m.reduce((a,b)=>a+b,0);
+                                temp_t_m[4] += (currentTotal - sum_temp);
+                                
+                                const totalVal = temp_t_m[index];
+                                const textLabel = Math.round(totalVal/1000) + 'k';
+                                ctx.fillText(textLabel, element.x, element.y - 6);
+                            }
+                        });
+                    }
+                    ctx.restore();
                 }
 
                 // 3. Render Stacked Bar & Line Data Values Text
@@ -512,7 +538,7 @@
                 ctx.textAlign = 'center';
                 chart.data.datasets.forEach((dataset, i) => {
                     const meta = chart.getDatasetMeta(i);
-                    if (!meta || meta.hidden || !meta.data) return;
+                    if (!meta || meta.hidden || !meta.data || dataset.type === 'line') return;
                     
                     meta.data.forEach((element, index) => {
                         const val = dataset.data[index];
@@ -520,60 +546,49 @@
                         
                         let text = '';
                         if (chartId === 'ratioChart') {
-                            if (dataset.type === 'line') text = val.toFixed(2) + '%';
-                            else text = '$' + val.toFixed(3);
+                            text = '$' + val.toFixed(3);
                         } else if (chartId === 'deviationChart') {
                             text = (val > 0 ? '+' : '') + Math.round(val/1000) + 'k';
                         } else { 
-                            if (dataset.type === 'line') {
-                                text = Math.round(val/1000) + 'k';
-                            } else {
-                                let stackTotal = 0;
-                                if (chartId === 'costChart') {
-                                    if (index === 0) stackTotal = 173216 + 248378 + 421594;
-                                    else if (index === 1) stackTotal = 266582 + 266063 + 532645;
-                                    else if (index === 2) stackTotal = 439798 + 514441 + 954239;
-                                    else if (index === 3) stackTotal = 277799 + 184328 + 462127;
-                                    else if (index === 4) stackTotal = 488964 + 173245 + 662209;
-                                } else if (chartId === 'trendChart') {
-                                    const factoryKey = chart.canvas.getAttribute('data-factory-key') || 'JSV';
-                                    const activeFactory = factoryData[factoryKey];
-                                    if(activeFactory) {
-                                        const currentTotal = activeFactory.prod + activeFactory.machine + activeFactory.general;
-                                        const temp_t_m = activeFactory.dist.map(p => Math.floor(currentTotal * p));
-                                        const sum_temp = temp_t_m.reduce((a,b)=>a+b,0);
-                                        temp_t_m[4] += (currentTotal - sum_temp);
-                                        stackTotal = temp_t_m[index];
-                                    }
+                            let stackTotal = 0;
+                            if (chartId === 'costChart') {
+                                if (index === 0) stackTotal = 173216 + 248378 + 421594;
+                                else if (index === 1) stackTotal = 266582 + 266063 + 532645;
+                                else if (index === 2) stackTotal = 439798 + 514441 + 954239;
+                                else if (index === 3) stackTotal = 277799 + 184328 + 462127;
+                                else if (index === 4) stackTotal = 488964 + 173245 + 662209;
+                            } else if (chartId === 'trendChart') {
+                                const factoryKey = chart.canvas.getAttribute('data-factory-key') || 'JSV';
+                                const activeFactory = factoryData[factoryKey];
+                                if(activeFactory) {
+                                    const currentTotal = activeFactory.prod + activeFactory.machine + activeFactory.general;
+                                    const temp_t_m = activeFactory.dist.map(p => Math.floor(currentTotal * p));
+                                    const sum_temp = temp_t_m.reduce((a,b)=>a+b,0);
+                                    temp_t_m[4] += (currentTotal - sum_temp);
+                                    stackTotal = temp_t_m[index];
+                                    
                                 }
-                                const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
-                                text = Math.round(val/1000) + 'k (' + pct + ')';
                             }
+                            const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
+                            text = Math.round(val/1000) + 'k (' + pct + ')';
                         }
                         
-                        if (dataset.type === 'line') {
-                            ctx.fillStyle = dataset.borderColor || '#dc2626';
-                            ctx.font = 'bold 10px "Malgun Gothic"'; ctx.textBaseline = 'bottom';
-                            const pos = element.tooltipPosition();
-                            ctx.fillText(text, pos.x, pos.y - 8);
-                        } else { 
-                            ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
-                            ctx.font = 'bold 9px "Malgun Gothic"'; 
-                            if(chartId === 'deviationChart') {
-                                ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
-                            } else {
-                                ctx.textBaseline = 'middle';
+                        ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
+                        ctx.font = 'bold 9px "Malgun Gothic"'; 
+                        if(chartId === 'deviationChart') {
+                            ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
+                        } else {
+                            ctx.textBaseline = 'middle';
+                        }
+                        const pos = element.tooltipPosition();
+                        const yCenter = chartId === 'deviationChart' ? pos.y + (val >= 0 ? -4 : 4) : (element.base + element.y) / 2;
+                        
+                        if (chartId === 'deviationChart' || Math.abs(element.base - element.y) > 16) {
+                            if(chartId !== 'deviationChart') {
+                                ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3;
                             }
-                            const pos = element.tooltipPosition();
-                            const yCenter = chartId === 'deviationChart' ? pos.y + (val >= 0 ? -4 : 4) : (element.base + element.y) / 2;
-                            
-                            if (chartId === 'deviationChart' || Math.abs(element.base - element.y) > 16) {
-                                if(chartId !== 'deviationChart') {
-                                    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3;
-                                }
-                                ctx.fillText(text, pos.x, yCenter);
-                                ctx.shadowBlur = 0;
-                            }
+                            ctx.fillText(text, pos.x, yCenter);
+                            ctx.shadowBlur = 0;
                         }
                     });
                 });
@@ -582,14 +597,15 @@
         }
     };
 
-    // Static Base Comparison Charts Setup
-    const baseLabels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
+    // Render Static Layout Charts
+    const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
     
-    // costChart Init
-    new Chart(document.getElementById('costChart').getContext('2d'), {
+    // Main Chart 1
+    const costCtx = document.getElementById('costChart').getContext('2d');
+    new Chart(costCtx, {
         type: 'bar',
         data: {
-            labels: baseLabels,
+            labels: labels,
             datasets: [
                 { label: '① 생산 소모품', data: [173216, 266582, 439798, 277799, 488964], backgroundColor: '#1f3864' },
                 { label: '② 기계부속 수리', data: [248378, 266063, 514441, 184328, 173245], backgroundColor: '#b88a2e' },
@@ -604,10 +620,11 @@
         plugins: [universalLabelsPlugin]
     });
 
-    // ratioChart Init
-    new Chart(document.getElementById('ratioChart').getContext('2d'), {
+    // Main Chart 2
+    const ratioCtx = document.getElementById('ratioChart').getContext('2d');
+    new Chart(ratioCtx, {
         data: {
-            labels: baseLabels,
+            labels: labels,
             datasets: [
                 { type: 'line', label: '생산실적대비율 (%)', data: [4.21, 5.40, 4.74, 5.33, 11.55], borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 2, tension: 0.2, yAxisID: 'y1' },
                 { type: 'bar', label: '1피스당 소모품비 ($)', data: [0.090, 0.141, 0.113, 0.118, 0.127], backgroundColor: '#e5e7eb', yAxisID: 'y' }
@@ -624,8 +641,9 @@
         plugins: [universalLabelsPlugin]
     });
 
-    // deviationChart Init
-    new Chart(document.getElementById('deviationChart').getContext('2d'), {
+    // Variance Deviation Chart 
+    const devCtxObj = document.getElementById('deviationChart').getContext('2d');
+    new Chart(devCtxObj, {
         type: 'bar',
         data: {
             labels: ['JSV(의류)', 'JSB', 'JSP', 'JSJ'],
@@ -665,7 +683,6 @@
         </tr>`;
     }
 
-    // Interactive Tab Controller Logic
     function switchFactory(key) {
         document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('active-row'));
         if(document.getElementById('row-' + key)) document.getElementById('row-' + key).classList.add('active-row');
@@ -709,34 +726,20 @@
 
         document.getElementById('detailTableBody').innerHTML = html;
 
-        let currentCum = 0;
-        const cum_t_m = t_m.map(val => { currentCum += val; return currentCum; });
-
-        // High Z-index Gradient Line Mix Chart Processing
+        // Render trendChart bar metrics
         const trendCanvas = document.getElementById('trendChart');
         trendCanvas.setAttribute('data-factory-key', key);
         const trendCtx = trendCanvas.getContext('2d');
         if (detailTrendChart) detailTrendChart.destroy();
         
-        const gradientLine = trendCtx.createLinearGradient(0, 0, 400, 0);
-        gradientLine.addColorStop(0, '#f43f5e'); 
-        gradientLine.addColorStop(0.5, '#dc2626'); 
-        gradientLine.addColorStop(1, '#9f1239'); 
-
         detailTrendChart = new Chart(trendCtx, {
             type: 'bar',
             data: {
                 labels: ['1월', '2월', '3월', '4월', '5월'],
                 datasets: [
-                    { type: 'bar', label: '생산소모품', data: prod_m, backgroundColor: '#1f3864', order: 2 },
-                    { type: 'bar', label: '기계수리', data: mach_m, backgroundColor: '#b88a2e', order: 2 },
-                    { type: 'bar', label: '일반소모품', data: gen_m, backgroundColor: '#9db3d6', order: 2 },
-                    { 
-                        type: 'line', label: '전체 누적 합계', data: cum_t_m, 
-                        borderColor: gradientLine, backgroundColor: 'transparent',
-                        borderWidth: 4.5, pointBackgroundColor: '#dc2626', pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1.5, pointRadius: 5, tension: 0.1, yAxisID: 'y1', order: 1 
-                    }
+                    { type: 'bar', label: '생산소모품', data: prod_m, backgroundColor: '#1f3864' },
+                    { type: 'bar', label: '기계수리', data: mach_m, backgroundColor: '#b88a2e' },
+                    { type: 'bar', label: '일반소모품', data: gen_m, backgroundColor: '#9db3d6' }
                 ]
             },
             options: {
@@ -747,14 +750,13 @@
                 },
                 scales: {
                     x: { stacked: true },
-                    y: { stacked: true, type: 'linear', position: 'left', display: false },
-                    y1: { type: 'linear', position: 'right', display: false, grid: { drawOnChartArea: false } }
+                    y: { stacked: true, type: 'linear', position: 'left', display: false }
                 }
             },
             plugins: [universalLabelsPlugin]
         });
 
-        // Chart 1: Category Doughnut Chart
+        // Chart 1: Category Pie
         const pieCtx = document.getElementById('detailPieChart').getContext('2d');
         if (detailPieChart) detailPieChart.destroy();
         detailPieChart = new Chart(pieCtx, {
@@ -766,10 +768,10 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } }, layout: { padding: 10 } }
         });
 
-        // Chart 2: Classification Doughnut Chart
+        // Chart 2: Classification Pie
         const classCtx = document.getElementById('detailClassChart').getContext('2d');
         if (detailClassChart) detailClassChart.destroy();
-        classCtx = new Chart(classCtx, {
+        detailClassChart = new Chart(classCtx, {
             type: 'doughnut',
             data: {
                 labels: ['변동비', '고정비', '자본적지출'],
@@ -779,7 +781,7 @@
         });
     }
 
-    // Trigger initial active view
+    // Initialize Page on window load hook
     window.onload = function() { switchFactory('JSV'); };
 </script>
 </body>
