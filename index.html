@@ -9,14 +9,14 @@
     :root { --navy: #1f3864; --gold: #b88a2e; --bg: #f0f2f5; --card: #fff; --ink: #1f2937; --muted: #6b7280; --line: #e5e7eb; --green: #059669; --red: #dc2626; --highlight: #fefce8; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--ink); padding: 16px; max-width: 1500px; margin: 0 auto; line-height: 1.5; }
-    .head { background: var(--navy); color: #fff; border-radius: 10px; padding: 10px 18px; display: flex; align-items: baseline; gap: 14px; margin-bottom: 15px; }
+    .head { background: var(--navy); color: #fff; border-radius: 10px; padding: 10px 18px; margin-bottom: 15px; }
     .es { background: var(--card); border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 15px 18px; margin-bottom: 12px; border-left: 5px solid var(--gold); }
-    .esStat { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; cursor: pointer; }
+    .esStat { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 10px; cursor: pointer; flex: 1; }
     .panel { background: var(--card); border-radius: 11px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 15px; margin-bottom: 12px; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-    .chart-container { height: 320px; width: 100%; position: relative; }
+    .chart-container { height: 280px; width: 100%; position: relative; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th, td { padding: 9px 8px; text-align: right; border-bottom: 1px solid #eee; }
+    th, td { padding: 8px; text-align: right; border-bottom: 1px solid #eee; }
     th { background: #f8fafc; font-weight: 800; }
     .l { text-align: left; }
     .clickable-row { cursor: pointer; }
@@ -24,10 +24,7 @@
     .btn-factory { padding: 6px 14px; border: 1px solid #ccc; background: #fff; cursor: pointer; font-weight: bold; margin-right: 5px; }
     .btn-factory.active { background: var(--navy); color: #fff; }
     .grid-detail { display: grid; grid-template-columns: 480px 1fr; gap: 15px; }
-    .factory-cards { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-    .f-card { background: #f8fafc; border: 1px solid #e5e7eb; padding: 10px; text-align: center; border-radius: 8px; }
-    .pie-box { width: 200px; height: 200px; }
-    .note-box { font-size: 11.5px; background: #f8fafc; padding: 12px; border: 1px solid #e5e7eb; margin-top: 10px; }
+    .pie-box { width: 50%; height: 200px; }
 </style>
 </head>
 <body>
@@ -37,11 +34,11 @@
 <!-- Summary -->
 <div class="es">
     <div onclick="document.getElementById('esBody').style.display = (document.getElementById('esBody').style.display === 'none' ? 'block' : 'none')" style="cursor:pointer">▼ EXECUTIVE SUMMARY · 2026년 5월 마감</div>
-    <div id="esBody" style="display:block; margin-top:10px;">
+    <div id="esBody" style="margin-top:10px;">
         <div style="display:flex; gap:10px;">
-            <div class="esStat"><div style="font-size:11px">전체 법인 누적 사용액</div><div style="font-weight:bold">$4,157,150</div></div>
-            <div class="esStat"><div style="font-size:11px">전체 법인 평균 1피스당 비용</div><div style="font-weight:bold">$0.118</div></div>
-            <div class="esStat"><div style="font-size:11px">변동비:고정비:자본적지출성 비용 비중</div><div style="font-weight:bold">62% : 12% : 26%</div></div>
+            <div class="esStat"><div style="font-size:11px; color:#666">전체 법인 누적 사용액</div><div style="font-weight:bold">$4,157,150</div></div>
+            <div class="esStat"><div style="font-size:11px; color:#666">전체 법인 평균 1피스당 비용</div><div style="font-weight:bold">$0.118</div></div>
+            <div class="esStat"><div style="font-size:11px; color:#666">변동비:고정비:자본적지출성 비용 비중</div><div style="font-weight:bold">62% : 12% : 26%</div></div>
         </div>
     </div>
 </div>
@@ -49,7 +46,7 @@
 <!-- Main Table -->
 <div class="panel">
     <h3>1. 전체 법인 실적 및 비용 총괄 요약</h3>
-    <table id="mainTable">
+    <table>
         <thead>
             <tr><th>순위</th><th>법인명</th><th>인원</th><th>라인</th><th>생산(pcs)</th><th>①생산</th><th>②기계</th><th>③일반</th><th>④합계</th><th>1피스당</th><th>KPI(TBD)</th><th>실적대비율</th><th>KPI(TBD)</th></tr>
         </thead>
@@ -61,14 +58,6 @@
             <tr id="row-JSJ" class="clickable-row" onclick="switchFactory('JSJ')"><td>4</td><td class="l">JSJ</td><td>2,213</td><td>17</td><td>10.4M</td><td>$488k</td><td>$173k</td><td>$662k</td><td>$1,324k</td><td>$0.127</td><td>-</td><td>11.55%</td><td>-</td></tr>
         </tbody>
     </table>
-    <h3 style="margin: 20px 0 5px 0;">1-2. 전체 법인 평균 편차 분포도</h3>
-    <div class="deviation-container"><canvas id="deviationChart"></canvas></div>
-</div>
-
-<!-- Comparison Charts -->
-<div class="grid2">
-    <div class="panel"><h3>법인별 소모품비 사용액 비교</h3><div class="chart-container"><canvas id="costChart"></canvas></div></div>
-    <div class="panel"><h3>효율지표 비교</h3><div class="chart-container"><canvas id="ratioChart"></canvas></div></div>
 </div>
 
 <!-- Detailed Analysis -->
@@ -82,12 +71,8 @@
     </div>
     <div class="grid-detail" style="margin-top:20px;">
         <div class="panel">
-            <h3 id="detailTitle">JSV 분석</h3>
-            <div class="factory-cards">
-                <div class="f-card"><div class="lbl">인원</div><div class="val" id="cardEmp">-</div></div>
-                <div class="f-card"><div class="lbl">라인</div><div class="val" id="cardLine">-</div></div>
-            </div>
-            <div style="display:flex; justify-content:space-around;">
+            <h3 id="detailTitle">상세 분석</h3>
+            <div style="display:flex;">
                 <div class="pie-box"><canvas id="detailPieChart"></canvas></div>
                 <div class="pie-box"><canvas id="detailClassChart"></canvas></div>
             </div>
@@ -95,7 +80,7 @@
         <div class="panel">
             <h3>비용 상세 실적</h3>
             <table id="detailTable"></table>
-            <div style="height:200px;"><canvas id="trendChart"></canvas></div>
+            <div class="chart-container" style="height:200px;"><canvas id="trendChart"></canvas></div>
         </div>
     </div>
 </div>
@@ -108,32 +93,37 @@
         JSP: { name: "JSP", emp: 2095, lines: 28, prod: 277799, machine: 184328, general: 462127, v: 554552, f: 138638, c: 231064, dist: [0.20, 0.19, 0.21, 0.20, 0.20] },
         JSJ: { name: "JSJ", emp: 2213, lines: 17, prod: 488964, machine: 173245, general: 662209, v: 860871, f: 264884, c: 198663, dist: [0.22, 0.18, 0.21, 0.19, 0.20] }
     };
+    
     let charts = {};
+    const labelPlugin = {
+        afterDraw(chart) {
+            const ctx = chart.ctx;
+            chart.data.datasets.forEach((ds, i) => {
+                const meta = chart.getDatasetMeta(i);
+                meta.data.forEach((el, idx) => {
+                    const total = ds.data.reduce((a,b)=>a+b, 0);
+                    const pct = ((ds.data[idx]/total)*100).toFixed(1) + '%';
+                    ctx.fillStyle = '#000'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(pct, el.tooltipPosition().x, el.tooltipPosition().y);
+                });
+            });
+        }
+    };
 
     function switchFactory(key) {
         const d = factoryData[key];
-        document.getElementById('detailTitle').textContent = d.name + " 구조 분석";
-        document.getElementById('cardEmp').textContent = d.emp;
-        document.getElementById('cardLine').textContent = d.lines;
-
-        ['detailPieChart','detailClassChart','trendChart'].forEach(id => { if(charts[id]) charts[id].destroy(); });
+        document.getElementById('detailTitle').textContent = d.name + " 구조 및 비중 분석";
         
-        // Pies with % Labels Plugin
-        const labelPlugin = {
-            afterDraw(chart) {
-                const ctx = chart.ctx;
-                chart.data.datasets.forEach((ds, i) => {
-                    const meta = chart.getDatasetMeta(i);
-                    meta.data.forEach((el, idx) => {
-                        const total = ds.data.reduce((a,b)=>a+b, 0);
-                        const pct = ((ds.data[idx]/total)*100).toFixed(1) + '%';
-                        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
-                        ctx.fillText(pct, el.tooltipPosition().x, el.tooltipPosition().y);
-                    });
-                });
-            }
-        };
+        // 1. 테이블 데이터 생성 (이 부분이 사라졌던 원인)
+        const table = document.getElementById('detailTable');
+        table.innerHTML = `<tr><th>구분</th><th>금액</th></tr>
+            <tr><td>생산소모품</td><td>$${d.prod.toLocaleString()}</td></tr>
+            <tr><td>기계수리</td><td>$${d.machine.toLocaleString()}</td></tr>
+            <tr><td>일반소모품</td><td>$${d.general.toLocaleString()}</td></tr>`;
 
+        // 2. 차트 초기화
+        ['detailPieChart', 'detailClassChart', 'trendChart'].forEach(id => { if(charts[id]) charts[id].destroy(); });
+        
         charts.detailPieChart = new Chart(document.getElementById('detailPieChart'), {
             type: 'doughnut',
             data: { labels: ['생산','기계','일반'], datasets: [{ data: [d.prod, d.machine, d.general], backgroundColor: ['#1f3864','#b88a2e','#9db3d6'] }] },
@@ -148,23 +138,13 @@
             plugins: [labelPlugin]
         });
 
-        // Trend with Gradient Line
-        const ctx = document.getElementById('trendChart').getContext('2d');
-        const grad = ctx.createLinearGradient(0,0,500,0); grad.addColorStop(0, '#f43f5e'); grad.addColorStop(1, '#9f1239');
-        charts.trendChart = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: ['1월','2월','3월','4월','5월'], datasets: [
-                { type: 'bar', data: d.dist.map(p => p*d.prod), label: '생산', backgroundColor:'#1f3864' },
-                { type: 'line', data: d.dist.map((p,i)=>d.dist.slice(0,i+1).reduce((a,b)=>a+b)*(d.prod+d.machine+d.general)), borderColor: grad, borderWidth: 5, fill: false }
-            ] },
+        charts.trendChart = new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: { labels: ['1월','2월','3월','4월','5월'], datasets: [{ label: '누적 합계', data: d.dist.map((p,i)=>d.dist.slice(0,i+1).reduce((a,b)=>a+b)*(d.prod+d.machine+d.general)), borderColor: '#dc2626', borderWidth: 4 }] },
             options: { responsive: true, maintainAspectRatio: false }
         });
     }
 
-    new Chart(document.getElementById('costChart'), { type: 'bar', data: { labels: Object.keys(factoryData), datasets: [{data:[843, 1065, 1908, 924, 1324]}] } });
-    new Chart(document.getElementById('ratioChart'), { type: 'bar', data: { labels: Object.keys(factoryData), datasets: [{data:[4.2, 5.4, 4.7, 5.3, 11.5]}] } });
-    new Chart(document.getElementById('deviationChart'), { type: 'bar', data: { labels: ['JSV','JSB','JSP','JSJ'], datasets: [{data:[10, -5, 2, -8]}] } });
-    
     window.onload = () => switchFactory('JSV');
 </script>
 </body>
