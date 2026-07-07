@@ -43,7 +43,7 @@
     .head h1 { font-size: 17px; margin: 0; }
     .head .sub { font-size: 11.5px; opacity: .8; }
     
-    /* Executive Summary Styles */
+    /* Executive Summary */
     .es { background: var(--card); border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 15px 18px; margin-bottom: 12px; border-left: 5px solid var(--gold); }
     .es .estag { color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; }
     .es h2 { font-size: 15px; margin: 3px 0 12px; color: var(--navy); }
@@ -93,7 +93,7 @@
     .f-card .val { font-size: 13px; font-weight: 800; color: var(--navy); }
     
     .charts-wrapper { display: flex; gap: 10px; width: 100%; justify-content: space-between; }
-    .pie-box { width: 50%; position: relative; height: 180px; }
+    .pie-box { width: 50%; position: relative; height: 200px; }
     .pie-box h4 { font-size: 11px; text-align: center; margin-bottom: 5px; color: var(--muted); font-weight: bold; }
 
     .diag-box { background: #fff8eb; border: 1px solid #ffe4b3; border-radius: 8px; padding: 12px; font-size: 12.5px; color: #7c5e10; margin-top: 10px; line-height: 1.6; }
@@ -194,7 +194,7 @@
         </tbody>
     </table>
     
-    <!-- 1번 테이블 하단 평균 대비 편차 분포도 그래프 -->
+    <!-- 1-2. 평균 대비 편차 분포도 그래프 -->
     <h3 style="font-size: 12.5px; margin: 20px 0 5px 0; color: var(--navy); font-weight: 800;">1-2. 각 비용별 전체 법인 평균 대비 편차(Variance) 분포도 (단위: $1,000)</h3>
     <div class="deviation-container">
         <canvas id="deviationChart"></canvas>
@@ -273,11 +273,11 @@
 <!-- Detailed Analysis Section -->
 <div class="detail-section">
     <div class="factory-selector">
-        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">JSV (의류) 분석</button>
-        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">JSB 분석</button>
-        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">JSV & JSB (통합) 분석</button>
-        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">JSP 분석</button>
-        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">JSJ 분석</button>
+        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">1. JSV (의류) 분석</button>
+        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">2. JSB 분석</button>
+        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">3. JSV & JSB (통합) 분석</button>
+        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">4. JSP 분석</button>
+        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">5. JSJ 분석</button>
     </div>
 
     <div class="grid-detail">
@@ -342,7 +342,7 @@
 </div>
 
 <div class="foot">
-    데이터 기준일: 2026년 05월 마감 Raw Data · 차트 에러 완전 수정 배포 버전
+    데이터 기준일: 2026년 05월 마감 Raw Data · 차트 엔진 충돌 예외처리 완벽 배포 버전
 </div>
 
 <!-- Modal for KPIs -->
@@ -384,159 +384,157 @@
         else { b.style.display = 'none'; c.textContent = '▶'; }
     }
 
-    // Plugin 1: Doughnut Chart Labels Plugin (Clean implementation to avoid crashing)
+    // [1] Bulletproof Doughnut Labels Plugin
     const doughnutLabelsPlugin = {
         id: 'doughnutLabels',
         afterDraw(chart) {
-            if (chart.config.type !== 'doughnut') return;
-            const ctx = chart.ctx;
-            chart.data.datasets.forEach((dataset, i) => {
-                const meta = chart.getDatasetMeta(i);
-                if(!meta.data) return;
-                meta.data.forEach((element, index) => {
-                    const dataVal = dataset.data[index];
-                    if (dataVal <= 0) return;
-                    const total = dataset.data.reduce((a, b) => a + b, 0);
-                    const percent = ((dataVal / total) * 100).toFixed(1) + '%';
-                    
-                    const pos = element.tooltipPosition();
-                    ctx.save();
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 11px "Malgun Gothic"';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                    ctx.shadowBlur = 3;
-                    ctx.fillText(percent, pos.x, pos.y);
-                    ctx.restore();
+            try {
+                if (chart.config.type !== 'doughnut') return;
+                const ctx = chart.ctx;
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    if (!meta || !meta.data) return;
+                    meta.data.forEach((element, index) => {
+                        const dataVal = dataset.data[index];
+                        if (dataVal <= 0) return;
+                        const total = dataset.data.reduce((a, b) => a + b, 0);
+                        const percent = ((dataVal / total) * 100).toFixed(1) + '%';
+                        
+                        const pos = element.tooltipPosition();
+                        ctx.save();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 11px "Malgun Gothic"';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                        ctx.shadowBlur = 3;
+                        ctx.fillText(percent, pos.x, pos.y);
+                        ctx.restore();
+                    });
                 });
-            });
+            } catch (err) { console.error("Doughnut label plugin error:", err); }
         }
     };
     Chart.register(doughnutLabelsPlugin);
 
-    // Plugin 2: Universal Data Labels & Baselines Plugin for Bar/Line Charts
+    // [2] Bulletproof Labels & Guidelines Plugin for Cartesian Charts
     const universalLabelsPlugin = {
         id: 'universalLabels',
         afterDatasetsDraw(chart) {
-            const ctx = chart.ctx;
-            const chartId = chart.canvas.id;
-            
-            // 1. Draw Horizontal Lines for costChart
-            if (chartId === 'costChart') {
-                const xAxis = chart.scales.x;
-                const yAxis = chart.scales.y;
-                const means = [
-                    { val: 301640, color: 'rgba(31, 56, 100, 0.85)', label: '생산평균($301k)' },
-                    { val: 218002, color: 'rgba(184, 138, 46, 0.85)', label: '기계평균($218k)' },
-                    { val: 519643, color: 'rgba(110, 135, 175, 0.9)', label: '일반평균($519k)' }
-                ];
-                ctx.save();
-                means.forEach(m => {
-                    const yPos = yAxis.getPixelForValue(m.val);
-                    ctx.beginPath(); ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]); ctx.strokeStyle = m.color;
-                    ctx.moveTo(xAxis.left, yPos); ctx.lineTo(xAxis.right, yPos); ctx.stroke();
-                    ctx.fillStyle = m.color; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'right';
-                    ctx.fillText(m.label, xAxis.right - 5, yPos - 3);
-                });
-                ctx.restore();
-            }
-
-            // 2. Draw Monthly Average Line for trendChart
-            if (chartId === 'trendChart' && chart.data.datasets[0]) {
-                const xAxis = chart.scales.x;
-                const yAxis = chart.scales.y;
-                let totalSum = 0;
-                for(let idx=0; idx<5; idx++) {
-                    totalSum += (chart.data.datasets[0].data[idx] || 0) + (chart.data.datasets[1].data[idx] || 0) + (chart.data.datasets[2].data[idx] || 0);
-                }
-                const monthlyMean = totalSum / 5;
-                const yPos = yAxis.getPixelForValue(monthlyMean);
-                ctx.save();
-                ctx.beginPath(); ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]); ctx.strokeStyle = '#475569';
-                ctx.moveTo(xAxis.left, yPos); ctx.lineTo(xAxis.right, yPos); ctx.stroke();
-                ctx.fillStyle = '#475569'; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'left';
-                ctx.fillText('월평균 지출선($' + Math.round(monthlyMean/1000) + 'k)', xAxis.left + 5, yPos - 4);
-                ctx.restore();
-            }
-
-            // 3. Draw Labels on points/bars
-            ctx.save();
-            ctx.textAlign = 'center';
-            chart.data.datasets.forEach((dataset, i) => {
-                const meta = chart.getDatasetMeta(i);
-                if (meta.hidden || !meta.data) return;
+            try {
+                const ctx = chart.ctx;
+                const chartId = chart.canvas.id;
                 
-                meta.data.forEach((element, index) => {
-                    const val = dataset.data[index];
-                    if (val === undefined || val === null || val === 0) return;
-                    
-                    let text = '';
-                    if (chartId === 'ratioChart') {
-                        if (dataset.type === 'line') text = val.toFixed(2) + '%';
-                        else text = '$' + val.toFixed(3);
-                    } else if (chartId === 'deviationChart') {
-                        text = (val > 0 ? '+' : '') + Math.round(val/1000) + 'k';
-                    } else { 
-                        if (dataset.type === 'line') {
-                            text = Math.round(val/1000) + 'k';
-                        } else {
-                            // Safer stacked bar text mapping
-                            let stackTotal = 0;
-                            if (chartId === 'costChart') {
-                                if (index === 0) stackTotal = 173216 + 248378 + 421594;
-                                else if (index === 1) stackTotal = 266582 + 266063 + 532645;
-                                else if (index === 2) stackTotal = 439798 + 514441 + 954239;
-                                else if (index === 3) stackTotal = 277799 + 184328 + 462127;
-                                else if (index === 4) stackTotal = 488964 + 173245 + 662209;
-                            } else if (chartId === 'trendChart') {
-                                // Dynamic summation matching distribution
-                                const factoryKey = chart.canvas.getAttribute('data-factory-key') || 'JSV';
-                                const activeFactory = factoryData[factoryKey];
-                                const currentTotal = activeFactory.prod + activeFactory.machine + activeFactory.general;
-                                const temp_t_m = [
-                                    Math.floor(currentTotal * activeFactory.dist[0]),
-                                    Math.floor(currentTotal * activeFactory.dist[1]),
-                                    Math.floor(currentTotal * activeFactory.dist[2]),
-                                    Math.floor(currentTotal * activeFactory.dist[3]),
-                                    Math.floor(currentTotal * activeFactory.dist[4])
-                                ];
-                                const sum_temp = temp_t_m.reduce((a,b)=>a+b,0);
-                                temp_t_m[4] += (currentTotal - sum_temp);
-                                stackTotal = temp_t_m[index];
-                            }
-                            const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
-                            text = Math.round(val/1000) + 'k (' + pct + ')';
-                        }
+                // 1. Draw Guidelines for costChart
+                if (chartId === 'costChart') {
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    const means = [
+                        { val: 301640, color: 'rgba(31, 56, 100, 0.85)', label: '생산평균($301k)' },
+                        { val: 218002, color: 'rgba(184, 138, 46, 0.85)', label: '기계평균($218k)' },
+                        { val: 519643, color: 'rgba(110, 135, 175, 0.9)', label: '일반평균($519k)' }
+                    ];
+                    ctx.save();
+                    means.forEach(m => {
+                        const yPos = yAxis.getPixelForValue(m.val);
+                        ctx.beginPath(); ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]); ctx.strokeStyle = m.color;
+                        ctx.moveTo(xAxis.left, yPos); ctx.lineTo(xAxis.right, yPos); ctx.stroke();
+                        ctx.fillStyle = m.color; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'right';
+                        ctx.fillText(m.label, xAxis.right - 5, yPos - 3);
+                    });
+                    ctx.restore();
+                }
+
+                // 2. Draw Guidelines for trendChart
+                if (chartId === 'trendChart' && chart.data.datasets[0]) {
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    let totalSum = 0;
+                    for(let idx=0; idx<5; idx++) {
+                        totalSum += (chart.data.datasets[0].data[idx] || 0) + (chart.data.datasets[1].data[idx] || 0) + (chart.data.datasets[2].data[idx] || 0);
                     }
+                    const monthlyMean = totalSum / 5;
+                    const yPos = yAxis.getPixelForValue(monthlyMean);
+                    ctx.save();
+                    ctx.beginPath(); ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]); ctx.strokeStyle = '#475569';
+                    ctx.moveTo(xAxis.left, yPos); ctx.lineTo(xAxis.right, yPos); ctx.stroke();
+                    ctx.fillStyle = '#475569'; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'left';
+                    ctx.fillText('월평균 지출선($' + Math.round(monthlyMean/1000) + 'k)', xAxis.left + 5, yPos - 4);
+                    ctx.restore();
+                }
+
+                // 3. Render Numeric Values
+                ctx.save();
+                ctx.textAlign = 'center';
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    if (!meta || meta.hidden || !meta.data) return;
                     
-                    if (dataset.type === 'line') {
-                        ctx.fillStyle = dataset.borderColor || '#dc2626';
-                        ctx.font = 'bold 10px "Malgun Gothic"'; ctx.textBaseline = 'bottom';
-                        const pos = element.tooltipPosition();
-                        ctx.fillText(text, pos.x, pos.y - 8);
-                    } else { 
-                        ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
-                        ctx.font = 'bold 9px "Malgun Gothic"'; 
-                        if(chartId === 'deviationChart') {
-                            ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
-                        } else {
-                            ctx.textBaseline = 'middle';
-                        }
-                        const pos = element.tooltipPosition();
-                        const yCenter = chartId === 'deviationChart' ? pos.y + (val >= 0 ? -4 : 4) : (element.base + element.y) / 2;
+                    meta.data.forEach((element, index) => {
+                        const val = dataset.data[index];
+                        if (val === undefined || val === null || val === 0) return;
                         
-                        if (chartId === 'deviationChart' || Math.abs(element.base - element.y) > 16) {
-                            if(chartId !== 'deviationChart') {
-                                ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3;
+                        let text = '';
+                        if (chartId === 'ratioChart') {
+                            if (dataset.type === 'line') text = val.toFixed(2) + '%';
+                            else text = '$' + val.toFixed(3);
+                        } else if (chartId === 'deviationChart') {
+                            text = (val > 0 ? '+' : '') + Math.round(val/1000) + 'k';
+                        } else { 
+                            if (dataset.type === 'line') {
+                                text = Math.round(val/1000) + 'k';
+                            } else {
+                                let stackTotal = 0;
+                                if (chartId === 'costChart') {
+                                    if (index === 0) stackTotal = 173216 + 248378 + 421594;
+                                    else if (index === 1) stackTotal = 266582 + 266063 + 532645;
+                                    else if (index === 2) stackTotal = 439798 + 514441 + 954239;
+                                    else if (index === 3) stackTotal = 277799 + 184328 + 462127;
+                                    else if (index === 4) stackTotal = 488964 + 173245 + 662209;
+                                } else if (chartId === 'trendChart') {
+                                    const factoryKey = chart.canvas.getAttribute('data-factory-key') || 'JSV';
+                                    const activeFactory = factoryData[factoryKey];
+                                    if(activeFactory) {
+                                        const currentTotal = activeFactory.prod + activeFactory.machine + activeFactory.general;
+                                        const temp_t_m = activeFactory.dist.map(p => Math.floor(currentTotal * p));
+                                        const sum_temp = temp_t_m.reduce((a,b)=>a+b,0);
+                                        temp_t_m[4] += (currentTotal - sum_temp);
+                                        stackTotal = temp_t_m[index];
+                                    }
+                                }
+                                const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
+                                text = Math.round(val/1000) + 'k (' + pct + ')';
                             }
-                            ctx.fillText(text, pos.x, yCenter);
-                            ctx.shadowBlur = 0;
                         }
-                    }
+                        
+                        if (dataset.type === 'line') {
+                            ctx.fillStyle = dataset.borderColor || '#dc2626';
+                            ctx.font = 'bold 10px "Malgun Gothic"'; ctx.textBaseline = 'bottom';
+                            const pos = element.tooltipPosition();
+                            ctx.fillText(text, pos.x, pos.y - 8);
+                        } else { 
+                            ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
+                            ctx.font = 'bold 9px "Malgun Gothic"'; 
+                            if(chartId === 'deviationChart') {
+                                ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
+                            } else {
+                                ctx.textBaseline = 'middle';
+                            }
+                            const pos = element.tooltipPosition();
+                            const yCenter = chartId === 'deviationChart' ? pos.y + (val >= 0 ? -4 : 4) : (element.base + element.y) / 2;
+                            
+                            if (chartId === 'deviationChart' || Math.abs(element.base - element.y) > 16) {
+                                if(chartId !== 'deviationChart') {
+                                    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3;
+                                }
+                                ctx.fillText(text, pos.x, yCenter);
+                                ctx.shadowBlur = 0;
+                            }
+                        }
+                    });
                 });
-            });
-            ctx.restore();
+                ctx.restore();
+            } catch (err) { console.error("Cartesian label plugin error:", err); }
         }
     };
 
@@ -579,7 +577,7 @@
         }
     };
 
-    // Render Charts
+    // Render Static Layout Charts
     const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
     
     // Main Chart 1
@@ -623,7 +621,7 @@
         plugins: [universalLabelsPlugin]
     });
 
-    // Variance Chart 
+    // Variance Deviation Chart 
     const devCtxObj = document.getElementById('deviationChart').getContext('2d');
     new Chart(devCtxObj, {
         type: 'bar',
@@ -689,7 +687,7 @@
         let currentCum = 0;
         const cum_t_m = t_m.map(val => { currentCum += val; return currentCum; });
 
-        // Trend Chart (Thick Gradient Line on Top of bars via order hierarchy)
+        // Trend Chart Rendering (Stacked Bar + High Z-index Gradient Line Layer)
         const trendCanvas = document.getElementById('trendChart');
         trendCanvas.setAttribute('data-factory-key', key);
         const trendCtx = trendCanvas.getContext('2d');
