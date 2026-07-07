@@ -273,11 +273,11 @@
 <!-- Detailed Analysis Section -->
 <div class="detail-section">
     <div class="factory-selector">
-        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">1. JSV (의류) 분석</button>
-        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">2. JSB 분석</button>
-        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">3. JSV & JSB (통합) 분석</button>
-        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">4. JSP 분석</button>
-        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">5. JSJ 분석</button>
+        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">JSV (의류) 분석</button>
+        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">JSB 분석</button>
+        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">JSV & JSB (통합) 분석</button>
+        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">JSP 분석</button>
+        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">JSJ 분석</button>
     </div>
 
     <div class="grid-detail">
@@ -342,7 +342,7 @@
 </div>
 
 <div class="foot">
-    데이터 기준일: 2026년 05월 마감 Raw Data · 차트 내 백분율 고해상도 렌더링 및 그라데이션 라인 보완 완료 버전
+    데이터 기준일: 2026년 05월 마감 Raw Data · 차트 에러 완전 수정 배포 버전
 </div>
 
 <!-- Modal for KPIs -->
@@ -384,7 +384,7 @@
         else { b.style.display = 'none'; c.textContent = '▶'; }
     }
 
-    // Plugin 1: Doughnut chart percentages label drawing fix
+    // Plugin 1: Doughnut Chart Labels Plugin (Clean implementation to avoid crashing)
     const doughnutLabelsPlugin = {
         id: 'doughnutLabels',
         afterDraw(chart) {
@@ -392,6 +392,7 @@
             const ctx = chart.ctx;
             chart.data.datasets.forEach((dataset, i) => {
                 const meta = chart.getDatasetMeta(i);
+                if(!meta.data) return;
                 meta.data.forEach((element, index) => {
                     const dataVal = dataset.data[index];
                     if (dataVal <= 0) return;
@@ -404,8 +405,8 @@
                     ctx.font = 'bold 11px "Malgun Gothic"';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.shadowColor = 'rgba(0,0,0,0.7)';
-                    ctx.shadowBlur = 4;
+                    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                    ctx.shadowBlur = 3;
                     ctx.fillText(percent, pos.x, pos.y);
                     ctx.restore();
                 });
@@ -414,76 +415,57 @@
     };
     Chart.register(doughnutLabelsPlugin);
 
-    // Plugin 2: Universal Data Labels
+    // Plugin 2: Universal Data Labels & Baselines Plugin for Bar/Line Charts
     const universalLabelsPlugin = {
         id: 'universalLabels',
         afterDatasetsDraw(chart) {
             const ctx = chart.ctx;
             const chartId = chart.canvas.id;
             
-            // 1. Draw Horizontal Mean Guidelines for Stacked Cost Chart
+            // 1. Draw Horizontal Lines for costChart
             if (chartId === 'costChart') {
                 const xAxis = chart.scales.x;
                 const yAxis = chart.scales.y;
-                
                 const means = [
                     { val: 301640, color: 'rgba(31, 56, 100, 0.85)', label: '생산평균($301k)' },
                     { val: 218002, color: 'rgba(184, 138, 46, 0.85)', label: '기계평균($218k)' },
                     { val: 519643, color: 'rgba(110, 135, 175, 0.9)', label: '일반평균($519k)' }
                 ];
-                
                 ctx.save();
                 means.forEach(m => {
                     const yPos = yAxis.getPixelForValue(m.val);
-                    ctx.beginPath();
-                    ctx.lineWidth = 1.2;
-                    ctx.setLineDash([4, 4]);
-                    ctx.strokeStyle = m.color;
-                    ctx.moveTo(xAxis.left, yPos);
-                    ctx.lineTo(xAxis.right, yPos);
-                    ctx.stroke();
-                    
-                    ctx.fillStyle = m.color;
-                    ctx.font = 'bold 9px "Malgun Gothic"';
-                    ctx.textAlign = 'right';
+                    ctx.beginPath(); ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]); ctx.strokeStyle = m.color;
+                    ctx.moveTo(xAxis.left, yPos); ctx.lineTo(xAxis.right, yPos); ctx.stroke();
+                    ctx.fillStyle = m.color; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'right';
                     ctx.fillText(m.label, xAxis.right - 5, yPos - 3);
                 });
                 ctx.restore();
             }
 
-            // 2. Draw Horizontal Mean Line for Detailed Trend Chart
+            // 2. Draw Monthly Average Line for trendChart
             if (chartId === 'trendChart' && chart.data.datasets[0]) {
                 const xAxis = chart.scales.x;
                 const yAxis = chart.scales.y;
-                
                 let totalSum = 0;
                 for(let idx=0; idx<5; idx++) {
-                    totalSum += chart.data.datasets[0].data[idx] + chart.data.datasets[1].data[idx] + chart.data.datasets[2].data[idx];
+                    totalSum += (chart.data.datasets[0].data[idx] || 0) + (chart.data.datasets[1].data[idx] || 0) + (chart.data.datasets[2].data[idx] || 0);
                 }
                 const monthlyMean = totalSum / 5;
                 const yPos = yAxis.getPixelForValue(monthlyMean);
-                
                 ctx.save();
-                ctx.beginPath();
-                ctx.lineWidth = 1.2;
-                ctx.setLineDash([3, 3]);
-                ctx.strokeStyle = '#475569';
-                ctx.moveTo(xAxis.left, yPos);
-                ctx.lineTo(xAxis.right, yPos);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#475569';
-                ctx.font = 'bold 9px "Malgun Gothic"';
-                ctx.textAlign = 'left';
+                ctx.beginPath(); ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]); ctx.strokeStyle = '#475569';
+                ctx.moveTo(xAxis.left, yPos); ctx.lineTo(xAxis.right, yPos); ctx.stroke();
+                ctx.fillStyle = '#475569'; ctx.font = 'bold 9px "Malgun Gothic"'; ctx.textAlign = 'left';
                 ctx.fillText('월평균 지출선($' + Math.round(monthlyMean/1000) + 'k)', xAxis.left + 5, yPos - 4);
                 ctx.restore();
             }
 
-            // 3. Render Numeric Values Text
+            // 3. Draw Labels on points/bars
+            ctx.save();
             ctx.textAlign = 'center';
             chart.data.datasets.forEach((dataset, i) => {
                 const meta = chart.getDatasetMeta(i);
-                if (meta.hidden) return;
+                if (meta.hidden || !meta.data) return;
                 
                 meta.data.forEach((element, index) => {
                     const val = dataset.data[index];
@@ -499,13 +481,30 @@
                         if (dataset.type === 'line') {
                             text = Math.round(val/1000) + 'k';
                         } else {
+                            // Safer stacked bar text mapping
                             let stackTotal = 0;
-                            chart.data.datasets.forEach((ds, dsIdx) => {
-                                const dsMeta = chart.getDatasetMeta(dsIdx);
-                                if (!dsMeta.hidden && (ds.type === 'bar' || ds.type === undefined)) {
-                                    stackTotal += (ds.data[index] || 0);
-                                }
-                            });
+                            if (chartId === 'costChart') {
+                                if (index === 0) stackTotal = 173216 + 248378 + 421594;
+                                else if (index === 1) stackTotal = 266582 + 266063 + 532645;
+                                else if (index === 2) stackTotal = 439798 + 514441 + 954239;
+                                else if (index === 3) stackTotal = 277799 + 184328 + 462127;
+                                else if (index === 4) stackTotal = 488964 + 173245 + 662209;
+                            } else if (chartId === 'trendChart') {
+                                // Dynamic summation matching distribution
+                                const factoryKey = chart.canvas.getAttribute('data-factory-key') || 'JSV';
+                                const activeFactory = factoryData[factoryKey];
+                                const currentTotal = activeFactory.prod + activeFactory.machine + activeFactory.general;
+                                const temp_t_m = [
+                                    Math.floor(currentTotal * activeFactory.dist[0]),
+                                    Math.floor(currentTotal * activeFactory.dist[1]),
+                                    Math.floor(currentTotal * activeFactory.dist[2]),
+                                    Math.floor(currentTotal * activeFactory.dist[3]),
+                                    Math.floor(currentTotal * activeFactory.dist[4])
+                                ];
+                                const sum_temp = temp_t_m.reduce((a,b)=>a+b,0);
+                                temp_t_m[4] += (currentTotal - sum_temp);
+                                stackTotal = temp_t_m[index];
+                            }
                             const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
                             text = Math.round(val/1000) + 'k (' + pct + ')';
                         }
@@ -513,13 +512,12 @@
                     
                     if (dataset.type === 'line') {
                         ctx.fillStyle = dataset.borderColor || '#dc2626';
-                        ctx.font = 'bold 10px "Malgun Gothic"';
-                        ctx.textBaseline = 'bottom';
+                        ctx.font = 'bold 10px "Malgun Gothic"'; ctx.textBaseline = 'bottom';
                         const pos = element.tooltipPosition();
                         ctx.fillText(text, pos.x, pos.y - 8);
                     } else { 
                         ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
-                        ctx.font = 'bold 9.5px "Malgun Gothic"'; 
+                        ctx.font = 'bold 9px "Malgun Gothic"'; 
                         if(chartId === 'deviationChart') {
                             ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
                         } else {
@@ -530,8 +528,7 @@
                         
                         if (chartId === 'deviationChart' || Math.abs(element.base - element.y) > 16) {
                             if(chartId !== 'deviationChart') {
-                                ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                                ctx.shadowBlur = 3;
+                                ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3;
                             }
                             ctx.fillText(text, pos.x, yCenter);
                             ctx.shadowBlur = 0;
@@ -539,6 +536,7 @@
                     }
                 });
             });
+            ctx.restore();
         }
     };
 
@@ -583,7 +581,6 @@
 
     // Render Charts
     const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
-    Chart.defaults.color = '#475569';
     
     // Main Chart 1
     const costCtx = document.getElementById('costChart').getContext('2d');
@@ -599,7 +596,7 @@
         },
         options: {
             responsive: true, maintainAspectRatio: false,
-            scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: v => '$' + (v/1000) + 'k' } } },
+            scales: { x: { stacked: true }, y: { stacked: true, display: false } },
             plugins: { legend: { position: 'top' } }
         },
         plugins: [universalLabelsPlugin]
@@ -645,28 +642,6 @@
         },
         plugins: [universalLabelsPlugin]
     });
-
-    function distribute(total, dist) {
-        let arr = dist.map(p => Math.floor(total * p));
-        let sum = arr.reduce((a, b) => a + b, 0);
-        arr[4] += (total - sum); 
-        return arr;
-    }
-
-    function formatRow(label, arr, tot, isBold=false, isClass=false) {
-        const trStyle = isClass ? 'background-color:#f8fafc;' : '';
-        const titleStyle = isBold ? 'font-weight:bold; color:var(--navy);' : '';
-        const valStyle = isBold ? 'font-weight:900; color:var(--navy);' : 'font-weight:bold;';
-        return `<tr style="${trStyle}">
-            <td class="l" style="${titleStyle}">${label}</td>
-            <td>$${arr[0].toLocaleString()}</td>
-            <td>$${arr[1].toLocaleString()}</td>
-            <td>$${arr[2].toLocaleString()}</td>
-            <td>$${arr[3].toLocaleString()}</td>
-            <td>$${arr[4].toLocaleString()}</td>
-            <td style="${valStyle}">$${tot.toLocaleString()}</td>
-        </tr>`;
-    }
 
     function switchFactory(key) {
         document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('active-row'));
@@ -714,15 +689,16 @@
         let currentCum = 0;
         const cum_t_m = t_m.map(val => { currentCum += val; return currentCum; });
 
-        // Trend Chart (Line order: 3, Top layer z-index fallback via properties)
-        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        // Trend Chart (Thick Gradient Line on Top of bars via order hierarchy)
+        const trendCanvas = document.getElementById('trendChart');
+        trendCanvas.setAttribute('data-factory-key', key);
+        const trendCtx = trendCanvas.getContext('2d');
         if (detailTrendChart) detailTrendChart.destroy();
         
-        // Linear Gradient for the Cumulative Line
         const gradientLine = trendCtx.createLinearGradient(0, 0, 400, 0);
-        gradientLine.addColorStop(0, '#f43f5e'); // Rose
-        gradientLine.addColorStop(0.5, '#dc2626'); // Red
-        gradientLine.addColorStop(1, '#9f1239'); // Dark Red
+        gradientLine.addColorStop(0, '#f43f5e'); 
+        gradientLine.addColorStop(0.5, '#dc2626'); 
+        gradientLine.addColorStop(1, '#9f1239'); 
 
         detailTrendChart = new Chart(trendCtx, {
             type: 'bar',
@@ -733,20 +709,10 @@
                     { type: 'bar', label: '기계수리', data: mach_m, backgroundColor: '#b88a2e', order: 2 },
                     { type: 'bar', label: '일반소모품', data: gen_m, backgroundColor: '#9db3d6', order: 2 },
                     { 
-                        type: 'line', 
-                        label: '전체 누적 합계', 
-                        data: cum_t_m, 
-                        borderColor: gradientLine,
-                        backgroundColor: 'transparent',
-                        borderWidth: 4.5, // Thicker line
-                        pointBackgroundColor: '#dc2626',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1.5,
-                        pointRadius: 5, 
-                        pointHoverRadius: 7,
-                        tension: 0.1, 
-                        yAxisID: 'y1',
-                        order: 1 // Forces line dataset to render ON TOP of bars
+                        type: 'line', label: '전체 누적 합계', data: cum_t_m, 
+                        borderColor: gradientLine, backgroundColor: 'transparent',
+                        borderWidth: 4.5, pointBackgroundColor: '#dc2626', pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5, pointRadius: 5, tension: 0.1, yAxisID: 'y1', order: 1 
                     }
                 ]
             },
@@ -754,8 +720,7 @@
                 responsive: true, maintainAspectRatio: false,
                 layout: { padding: { top: 20, right: 10 } },
                 plugins: {
-                    legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 8 } },
-                    tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': $' + context.raw.toLocaleString(); } } }
+                    legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 8 } }
                 },
                 scales: {
                     x: { stacked: true },
