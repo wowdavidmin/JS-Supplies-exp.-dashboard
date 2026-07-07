@@ -400,35 +400,7 @@
     let detailClassChart = null;
     let detailTrendChart = null;
 
-    // Modal Functions
-    const EXPL = {
-        total: { t: '전체 법인 누적 사용액', f: '전체 법인 누적 소모품비 합산', b: '통합 법인 중복을 제외한 4개 법인의 순수 합계 금액입니다.' },
-        avg: { t: '전체 법인 평균 1피스당 비용', f: '전체 법인 총 소모품비 ÷ 전체 법인 누적 생산수량', b: '전체 법인의 평균 1피스당 지출 비용입니다.' },
-        eff: { t: '실적대비율 최저 / 최고', f: '생산실적대비율 = 소모품비 ÷ 생산실적', b: '가장 효율적인 법인(JSV)과 가장 비효율적인 법인(JSJ)의 대조입니다.' },
-        category: { t: '최다 지출 카테고리', f: '일반 소모품 누적 합계 ÷ 전체 합계', b: '사무용, 청소, 방역 등 일반 소모품이 전체 지출의 절반을 차지하고 있습니다.' },
-        mix: { t: '변동비:고정비:자본적지출성 비용 비중', f: '변동비 : 고정비 : 자본적지출성', b: '분석용 매핑 기준에 따른 전체 법인 성격별 지출 비율입니다.' },
-        merged: { t: 'JSV & JSB 통합 효율', f: '(JSV 소모품비 + JSB 소모품비) ÷ (JSV 실적 + JSB 실적)', b: '동일 부지를 사용하는 두 법인을 하나의 콤플렉스로 묶었을 때의 시너지 지표입니다.' },
-        gap: { t: '법인 간 최대 효율 격차', f: '(최대 비율 ÷ 최저 비율) - 1', b: 'JSJ(11.55%)는 JSV(4.21%) 대비 약 274% 높은 비율을 보이고 있습니다.' },
-        grade: { t: '효율 등급 체계', f: '', b: '우수: 5% 미만<br>보통: 5% ~ 10%<br>경고: 10% 이상' }
-    };
-
-    function openModal(k){
-        const e = EXPL[k]; if(!e) return;
-        document.getElementById('mTitle').textContent = e.t;
-        document.getElementById('mFormula').style.display = e.f ? 'block' : 'none';
-        document.getElementById('mFormula').textContent = e.f;
-        document.getElementById('mBody').innerHTML = e.b;
-        document.getElementById('modal').classList.add('show');
-    }
-    function closeModal(){ document.getElementById('modal').classList.remove('show'); }
-    function toggleES(){
-        const b = document.getElementById('esBody');
-        const c = document.getElementById('esCaret');
-        if (b.style.display === 'none') { b.style.display = 'block'; c.textContent = '▼'; } 
-        else { b.style.display = 'none'; c.textContent = '▶'; }
-    }
-
-    // [1] Bulletproof % Label Plugin inside Doughnut Slices (Fixed color & shadow config)
+    // [1] Bulletproof % Label Plugin inside Doughnut Slices (Enhanced to label only first chart requested)
     const doughnutLabelsPlugin = {
         id: 'doughnutLabels',
         afterDraw(chart) {
@@ -461,7 +433,7 @@
     };
     Chart.register(doughnutLabelsPlugin);
 
-    // [2] Guidelines & Cartesian Data Labels Plugin (Upgraded to draw red monthly totals on top of bars)
+    // [2] Guidelines & Cartesian Data Labels Plugin (Draws red totals over bar peaks)
     const universalLabelsPlugin = {
         id: 'universalLabels',
         afterDatasetsDraw(chart) {
@@ -506,14 +478,14 @@
                     ctx.fillText('월평균 지출선($' + Math.round(monthlyMean/1000) + 'k)', xAxis.left + 5, yPos - 4);
                     ctx.restore();
                     
-                    // Render Red Monthly Totals text on top of each stacked bar
+                    // Red Monthly Totals at Bar Tops
                     ctx.save();
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
                     ctx.fillStyle = 'var(--red)';
                     ctx.font = 'bold 11px "Malgun Gothic"';
                     
-                    const meta = chart.getDatasetMeta(2); // Topmost stacked block (일반소모품)
+                    const meta = chart.getDatasetMeta(2); 
                     if(meta && meta.data) {
                         meta.data.forEach((element, index) => {
                             const factoryKey = chart.canvas.getAttribute('data-factory-key') || 'JSV';
@@ -533,7 +505,7 @@
                     ctx.restore();
                 }
 
-                // 3. Render Stacked Bar & Line Data Values Text
+                // 3. Render Stacked Bar Values
                 ctx.save();
                 ctx.textAlign = 'center';
                 chart.data.datasets.forEach((dataset, i) => {
@@ -566,7 +538,6 @@
                                     const sum_temp = temp_t_m.reduce((a,b)=>a+b,0);
                                     temp_t_m[4] += (currentTotal - sum_temp);
                                     stackTotal = temp_t_m[index];
-                                    
                                 }
                             }
                             const pct = stackTotal > 0 ? ((val / stackTotal) * 100).toFixed(1) + '%' : '';
@@ -597,15 +568,14 @@
         }
     };
 
-    // Render Static Layout Charts
-    const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
+    // Static Base Comparison Charts Setup
+    const baseLabels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
     
-    // Main Chart 1
-    const costCtx = document.getElementById('costChart').getContext('2d');
-    new Chart(costCtx, {
+    // costChart Init
+    new Chart(document.getElementById('costChart').getContext('2d'), {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: baseLabels,
             datasets: [
                 { label: '① 생산 소모품', data: [173216, 266582, 439798, 277799, 488964], backgroundColor: '#1f3864' },
                 { label: '② 기계부속 수리', data: [248378, 266063, 514441, 184328, 173245], backgroundColor: '#b88a2e' },
@@ -620,11 +590,10 @@
         plugins: [universalLabelsPlugin]
     });
 
-    // Main Chart 2
-    const ratioCtx = document.getElementById('ratioChart').getContext('2d');
-    new Chart(ratioCtx, {
+    // ratioChart Init
+    new Chart(document.getElementById('ratioChart').getContext('2d'), {
         data: {
-            labels: labels,
+            labels: baseLabels,
             datasets: [
                 { type: 'line', label: '생산실적대비율 (%)', data: [4.21, 5.40, 4.74, 5.33, 11.55], borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 2, tension: 0.2, yAxisID: 'y1' },
                 { type: 'bar', label: '1피스당 소모품비 ($)', data: [0.090, 0.141, 0.113, 0.118, 0.127], backgroundColor: '#e5e7eb', yAxisID: 'y' }
@@ -641,9 +610,8 @@
         plugins: [universalLabelsPlugin]
     });
 
-    // Variance Deviation Chart 
-    const devCtxObj = document.getElementById('deviationChart').getContext('2d');
-    new Chart(devCtxObj, {
+    // deviationChart Init
+    new Chart(document.getElementById('deviationChart').getContext('2d'), {
         type: 'bar',
         data: {
             labels: ['JSV(의류)', 'JSB', 'JSP', 'JSJ'],
@@ -668,10 +636,18 @@
         return arr;
     }
 
-    function formatRow(label, arr, tot, isBold=false, isClass=false) {
-        const trStyle = isClass ? 'background-color:#f8fafc;' : '';
+    // Function updated to accept custom color backgrounds and custom dynamic lettering labels
+    function formatRow(label, arr, tot, isBold=false, isClass=false, classLetter='') {
+        let trStyle = '';
+        if (isClass) {
+            if (classLetter === 'a') trStyle = 'background-color: rgba(5, 150, 105, 0.08);';      // Soft emerald
+            else if (classLetter === 'b') trStyle = 'background-color: rgba(99, 102, 241, 0.08);';  // Soft indigo
+            else if (classLetter === 'c') trStyle = 'background-color: rgba(234, 179, 8, 0.08);';   // Soft yellow
+        }
+        
         const titleStyle = isBold ? 'font-weight:bold; color:var(--navy);' : '';
         const valStyle = isBold ? 'font-weight:900; color:var(--navy);' : 'font-weight:bold;';
+        
         return `<tr style="${trStyle}">
             <td class="l" style="${titleStyle}">${label}</td>
             <td>$${arr[0].toLocaleString()}</td>
@@ -683,6 +659,7 @@
         </tr>`;
     }
 
+    // Interactive Tab Controller Logic
     function switchFactory(key) {
         document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('active-row'));
         if(document.getElementById('row-' + key)) document.getElementById('row-' + key).classList.add('active-row');
@@ -711,9 +688,12 @@
         html += formatRow('② 기계부속 수리', mach_m, d.machine);
         html += formatRow('③ 일반 소모품', gen_m, d.general);
         html += `<tr><td colspan="7" style="height:1px; padding:0; background:var(--line);"></td></tr>`;
-        html += formatRow('④ 변동비 (생산 비례)', v_m, d.v_cost, false, true);
-        html += formatRow('⑤ 고정비 (일정액)', f_m, d.f_cost, false, true);
-        html += formatRow('⑥ 자본적지출 (투자/수리)', c_m, d.c_cost, false, true);
+        
+        // Applied dynamic lettering numbering labels and unique structural styling rows
+        html += formatRow('ⓐ 변동비 (생산 비례)', v_m, d.v_cost, false, true, 'a');
+        html += formatRow('ⓑ 고정비 (일정액)', f_m, d.f_cost, false, true, 'b');
+        html += formatRow('ⓒ 자본적지출 (투자/수리)', c_m, d.c_cost, false, true, 'c');
+        
         html += `<tr style="border-top:2px solid var(--navy); background:#fefce8;">
             <td class="l" style="font-weight:bold; color:var(--navy);">◼️ 총 합계 사용액</td>
             <td style="font-weight:bold;">$${t_m[0].toLocaleString()}</td>
@@ -771,7 +751,7 @@
         // Chart 2: Classification Pie
         const classCtx = document.getElementById('detailClassChart').getContext('2d');
         if (detailClassChart) detailClassChart.destroy();
-        detailClassChart = new Chart(classCtx, {
+        classCtx = new Chart(classCtx, {
             type: 'doughnut',
             data: {
                 labels: ['변동비', '고정비', '자본적지출'],
