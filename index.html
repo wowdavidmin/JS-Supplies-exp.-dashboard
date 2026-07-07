@@ -114,7 +114,7 @@
     .modal .mb { font-size: 12.5px; color: #374151; line-height: 1.65; }
     .modal .mclose { margin-top: 14px; text-align: center; background: var(--navy); color: #fff; border-radius: 7px; padding: 8px; cursor: pointer; font-weight: 700; }
     
-    @media(max-width:1024px){ .grid2, .grid-detail { grid-template-columns: 1fr; } .charts-wrapper { flex-direction: column; } .pie-box { width: 100%; height: 200px; margin-bottom: 20px;} .esStat { flex: 1 1 100%; } }
+    @media(max-width:1024px){ .grid2, .grid-detail { grid-template-columns: 1fr; } .charts-wrapper { flex-direction: column; } .pie-box { width: 100%; height: 200px; margin-bottom: 20px;} }
 </style>
 </head>
 <body>
@@ -200,7 +200,7 @@
         <canvas id="deviationChart"></canvas>
     </div>
     <div style="font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4;">
-        * 본 그래프는 4개 본창 법인의 항목별 산술평균(생산 소모품: $301K, 기계부속: $218K, 일반 소모품: $519K)을 기준선(0)으로 두고, 각 법인이 평균 대비 초과(`+`/bad) 또는 절감(`-`/good) 하였는지를 시각화한 분포도입니다.
+        * 本 그래프는 4개 본창 법인의 항목별 산술평균(생산 소모품: $301K, 기계부속: $218K, 일반 소모품: $519K)을 기준선(0)으로 두고, 각 법인이 평균 대비 초과(`+`/bad) 또는 절감(`-`/good) 하였는지를 시각화한 분포도입니다.
     </div>
 </div>
 
@@ -273,11 +273,11 @@
 <!-- Detailed Analysis Section -->
 <div class="detail-section">
     <div class="factory-selector">
-        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">JSV (의류) 분석</button>
-        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">JSB 분석</button>
-        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">JSV & JSB (통합) 분석</button>
-        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">JSP 분석</button>
-        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">JSJ 분석</button>
+        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">1. JSV (의류) 분석</button>
+        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">2. JSB 분석</button>
+        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">3. JSV & JSB (통합) 분석</button>
+        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">4. JSP 분석</button>
+        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">5. JSJ 분석</button>
     </div>
 
     <div class="grid-detail">
@@ -325,6 +325,7 @@
                 </tbody>
             </table>
             
+            <!-- 1~5월 추이 차트 -->
             <h3 style="font-size: 12px; margin: 15px 0 5px 0; color:var(--muted);">월별 비용 발생 추이 및 전체 누적 합계 (단위: $1,000)</h3>
             <div class="chart-container" style="height: 220px; width: 100%;">
                 <canvas id="trendChart"></canvas>
@@ -341,7 +342,7 @@
 </div>
 
 <div class="foot">
-    데이터 기준일: 2026년 05월 마감 Raw Data · 전체 법인 명칭 통정 및 산술평균 가이드 기준선 실배포 버전
+    데이터 기준일: 2026년 05월 마감 Raw Data · 차트 내 백분율 고해상도 렌더링 및 그라데이션 라인 보완 완료 버전
 </div>
 
 <!-- Modal for KPIs -->
@@ -355,7 +356,65 @@
 </div>
 
 <script>
-    // Universal Data Labels and Horizontal Mean Lines Custom Plugin
+    // Modal Functions
+    const EXPL = {
+        total: { t: '전체 법인 누적 사용액', f: '전체 법인 누적 소모품비 합산', b: '통합 법인 중복을 제외한 4개 법인의 순수 합계 금액입니다.' },
+        avg: { t: '전체 법인 평균 1피스당 비용', f: '전체 법인 총 소모품비 ÷ 전체 법인 누적 생산수량', b: '전체 법인의 평균 1피스당 지출 비용입니다.' },
+        eff: { t: '실적대비율 최저 / 최고', f: '생산실적대비율 = 소모품비 ÷ 생산실적', b: '가장 효율적인 법인(JSV)과 가장 비효율적인 법인(JSJ)의 대조입니다.' },
+        category: { t: '최다 지출 카테고리', f: '일반 소모품 누적 합계 ÷ 전체 합계', b: '사무용, 청소, 방역 등 일반 소모품이 전체 지출의 절반을 차지하고 있습니다.' },
+        mix: { t: '성격별 비용 비중', f: '변동비 : 고정비 : 자본적지출', b: '분석용 매핑 기준에 따른 전체 법인 성격별 지출 비율입니다.' },
+        merged: { t: 'JSV & JSB 통합 효율', f: '(JSV 소모품비 + JSB 소모품비) ÷ (JSV 실적 + JSB 실적)', b: '동일 부지를 사용하는 두 법인을 하나의 콤플렉스로 묶었을 때의 시너지 지표입니다.' },
+        gap: { t: '법인 간 최대 효율 격차', f: '(최대 비율 ÷ 최저 비율) - 1', b: 'JSJ(11.55%)는 JSV(4.21%) 대비 약 274% 높은 비율을 보이고 있습니다.' },
+        grade: { t: '효율 등급 체계', f: '', b: '우수: 5% 미만<br>보통: 5% ~ 10%<br>경고: 10% 이상' }
+    };
+
+    function openModal(k){
+        const e = EXPL[k]; if(!e) return;
+        document.getElementById('mTitle').textContent = e.t;
+        document.getElementById('mFormula').style.display = e.f ? 'block' : 'none';
+        document.getElementById('mFormula').textContent = e.f;
+        document.getElementById('mBody').innerHTML = e.b;
+        document.getElementById('modal').classList.add('show');
+    }
+    function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+    function toggleES(){
+        const b = document.getElementById('esBody');
+        const c = document.getElementById('esCaret');
+        if (b.style.display === 'none') { b.style.display = 'block'; c.textContent = '▼'; } 
+        else { b.style.display = 'none'; c.textContent = '▶'; }
+    }
+
+    // Plugin 1: Doughnut chart percentages label drawing fix
+    const doughnutLabelsPlugin = {
+        id: 'doughnutLabels',
+        afterDraw(chart) {
+            if (chart.config.type !== 'doughnut') return;
+            const ctx = chart.ctx;
+            chart.data.datasets.forEach((dataset, i) => {
+                const meta = chart.getDatasetMeta(i);
+                meta.data.forEach((element, index) => {
+                    const dataVal = dataset.data[index];
+                    if (dataVal <= 0) return;
+                    const total = dataset.data.reduce((a, b) => a + b, 0);
+                    const percent = ((dataVal / total) * 100).toFixed(1) + '%';
+                    
+                    const pos = element.tooltipPosition();
+                    ctx.save();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 11px "Malgun Gothic"';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+                    ctx.shadowBlur = 4;
+                    ctx.fillText(percent, pos.x, pos.y);
+                    ctx.restore();
+                });
+            });
+        }
+    };
+    Chart.register(doughnutLabelsPlugin);
+
+    // Plugin 2: Universal Data Labels
     const universalLabelsPlugin = {
         id: 'universalLabels',
         afterDatasetsDraw(chart) {
@@ -457,10 +516,10 @@
                         ctx.font = 'bold 10px "Malgun Gothic"';
                         ctx.textBaseline = 'bottom';
                         const pos = element.tooltipPosition();
-                        ctx.fillText(text, pos.x, pos.y - 6);
+                        ctx.fillText(text, pos.x, pos.y - 8);
                     } else { 
                         ctx.fillStyle = chartId === 'deviationChart' ? '#1f3864' : '#ffffff';
-                        ctx.font = 'bold 9px "Malgun Gothic"'; 
+                        ctx.font = 'bold 9.5px "Malgun Gothic"'; 
                         if(chartId === 'deviationChart') {
                             ctx.textBaseline = val >= 0 ? 'bottom' : 'top';
                         } else {
@@ -522,10 +581,7 @@
         }
     };
 
-    let detailPieChart = null;
-    let detailClassChart = null;
-    let detailTrendChart = null;
-
+    // Render Charts
     const labels = ['JSV(의류)', 'JSB', 'JSV & JSB(통합)', 'JSP', 'JSJ'];
     Chart.defaults.color = '#475569';
     
@@ -658,23 +714,45 @@
         let currentCum = 0;
         const cum_t_m = t_m.map(val => { currentCum += val; return currentCum; });
 
-        // Trend Chart
+        // Trend Chart (Line order: 3, Top layer z-index fallback via properties)
         const trendCtx = document.getElementById('trendChart').getContext('2d');
         if (detailTrendChart) detailTrendChart.destroy();
+        
+        // Linear Gradient for the Cumulative Line
+        const gradientLine = trendCtx.createLinearGradient(0, 0, 400, 0);
+        gradientLine.addColorStop(0, '#f43f5e'); // Rose
+        gradientLine.addColorStop(0.5, '#dc2626'); // Red
+        gradientLine.addColorStop(1, '#9f1239'); // Dark Red
+
         detailTrendChart = new Chart(trendCtx, {
             type: 'bar',
             data: {
                 labels: ['1월', '2월', '3월', '4월', '5월'],
                 datasets: [
-                    { type: 'bar', label: '생산소모품', data: prod_m, backgroundColor: '#1f3864' },
-                    { type: 'bar', label: '기계수리', data: mach_m, backgroundColor: '#b88a2e' },
-                    { type: 'bar', label: '일반소모품', data: gen_m, backgroundColor: '#9db3d6' },
-                    { type: 'line', label: '전체 누적 합계', data: cum_t_m, borderColor: '#dc2626', backgroundColor: '#dc2626', borderWidth: 2, pointRadius: 4, tension: 0.1, yAxisID: 'y1' }
+                    { type: 'bar', label: '생산소모품', data: prod_m, backgroundColor: '#1f3864', order: 2 },
+                    { type: 'bar', label: '기계수리', data: mach_m, backgroundColor: '#b88a2e', order: 2 },
+                    { type: 'bar', label: '일반소모품', data: gen_m, backgroundColor: '#9db3d6', order: 2 },
+                    { 
+                        type: 'line', 
+                        label: '전체 누적 합계', 
+                        data: cum_t_m, 
+                        borderColor: gradientLine,
+                        backgroundColor: 'transparent',
+                        borderWidth: 4.5, // Thicker line
+                        pointBackgroundColor: '#dc2626',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5,
+                        pointRadius: 5, 
+                        pointHoverRadius: 7,
+                        tension: 0.1, 
+                        yAxisID: 'y1',
+                        order: 1 // Forces line dataset to render ON TOP of bars
+                    }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                layout: { padding: { top: 15, right: 10 } },
+                layout: { padding: { top: 20, right: 10 } },
                 plugins: {
                     legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 8 } },
                     tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': $' + context.raw.toLocaleString(); } } }
@@ -703,7 +781,7 @@
         // Chart 2: Classification Pie
         const classCtx = document.getElementById('detailClassChart').getContext('2d');
         if (detailClassChart) detailClassChart.destroy();
-        detailClassChart = new Chart(classCtx, {
+        classCtx = new Chart(classCtx, {
             type: 'doughnut',
             data: {
                 labels: ['변동비', '고정비', '자본적지출'],
