@@ -43,9 +43,17 @@
     .head h1 { font-size: 17px; margin: 0; }
     .head .sub { font-size: 11.5px; opacity: .8; }
     
+    /* Executive Summary Styles */
     .es { background: var(--card); border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 15px 18px; margin-bottom: 12px; border-left: 5px solid var(--gold); }
-    .es h2 { font-size: 15px; margin: 3px 0 10px; color: var(--navy); }
-    .es ul { list-style: none; padding-left: 0; }
+    .es .estag { color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; }
+    .es h2 { font-size: 15px; margin: 3px 0 12px; color: var(--navy); }
+    .esStats { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 8px; margin-bottom: 15px; }
+    .esStat { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: .12s; position: relative; }
+    .esStat:hover { box-shadow: 0 0 0 2px #9db3d6; }
+    .esStat .l { color: var(--muted); font-size: 11px; }
+    .esStat .v { font-size: 15px; font-weight: 800; margin-top: 3px; color: var(--navy); }
+    .esStat .iq { position: absolute; top: 8px; right: 10px; font-size: 10px; color: #9db3d6; font-weight: 800; }
+    .es ul { list-style: none; padding-left: 0; border-top: 1px dashed var(--line); padding-top: 10px; }
     .es li { padding: 6px 0 6px 18px; position: relative; font-size: 12.5px; border-bottom: 1px dashed var(--line); }
     .es li:last-child { border: none; }
     .es li:before { content: "▸"; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
@@ -93,7 +101,7 @@
     .note-box b { color: var(--navy); }
     
     .compact-table th, .compact-table td { padding: 4px 6px; font-size: 11px; }
-    
+
     /* Modal Styles */
     .modal-bg { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
     .modal-bg.show { display: flex; }
@@ -102,7 +110,7 @@
     .modal .formula { background: #eef2f8; border-radius: 8px; padding: 9px 12px; font-size: 13px; margin: 8px 0; color: var(--navy); font-weight: 800; }
     .modal .mb { font-size: 12.5px; color: #374151; line-height: 1.65; }
     .modal .mclose { margin-top: 14px; text-align: center; background: var(--navy); color: #fff; border-radius: 7px; padding: 8px; cursor: pointer; font-weight: 700; }
-
+    
     @media(max-width:1024px){ .grid2, .grid-detail { grid-template-columns: 1fr; } .charts-wrapper { flex-direction: column; } .pie-box { width: 100%; height: 200px; margin-bottom: 20px;} }
 </style>
 </head>
@@ -168,7 +176,7 @@
             <tr id="row-JSB" class="clickable-row" onclick="switchFactory('JSB')">
                 <td class="l">2</td><td class="l"><b>JSB</b></td><td>11,621</td><td>95</td><td>7,548,849</td><td>$266,582</td><td>$266,063</td><td>$532,645</td><td>$1,065,290</td><td>$0.141</td><td>5.40%</td>
             </tr>
-            <tr id="row-JSV_JSB" class="clickable-row" style="background-color: var(--highlight);" onclick="switchFactory('JSV_JSB')">
+            <tr id="row-JSV_JSB" class="clickable-row" onclick="switchFactory('JSV_JSB')">
                 <td class="l">-</td><td class="l"><b>JSV & JSB (통합)</b></td><td>14,186</td><td>129</td><td>16,935,349</td><td>$439,798</td><td>$514,441</td><td>$954,239</td><td>$1,908,478</td><td>$0.113</td><td><span class="good">4.74%</span></td>
             </tr>
             <tr id="row-JSP" class="clickable-row" onclick="switchFactory('JSP')">
@@ -192,9 +200,9 @@
             <tr>
                 <th class="l">법인명</th>
                 <th>총 합계 사용액</th>
-                <th>변동비 추산액</th>
-                <th>고정비 추산액</th>
-                <th>자본적지출성 추산액</th>
+                <th>변동비 추산액 (비중)</th>
+                <th>고정비 추산액 (비중)</th>
+                <th>자본적지출 추산액 (비중)</th>
             </tr>
         </thead>
         <tbody>
@@ -210,7 +218,7 @@
                 <td>$50,069 <span class="pct">(4.7%)</span></td>
                 <td>$278,041 <span class="pct">(26.1%)</span></td>
             </tr>
-            <tr style="background:#fefce8;">
+            <tr>
                 <td class="l"><b>JSV & JSB (통합)</b></td><td>$1,908,478</td>
                 <td>$1,163,833 <span class="pct">(61.0%)</span></td>
                 <td>$96,444 <span class="pct">(5.1%)</span></td>
@@ -253,11 +261,11 @@
 <!-- Detailed Analysis Section -->
 <div class="detail-section">
     <div class="factory-selector">
-        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">JSV (의류) 분석</button>
-        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">JSB 분석</button>
-        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">JSV & JSB (통합) 분석</button>
-        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">JSP 분석</button>
-        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">JSJ 분석</button>
+        <button class="btn-factory active" id="btn-JSV" onclick="switchFactory('JSV')">1. JSV (의류) 분석</button>
+        <button class="btn-factory" id="btn-JSB" onclick="switchFactory('JSB')">2. JSB 분석</button>
+        <button class="btn-factory" id="btn-JSV_JSB" onclick="switchFactory('JSV_JSB')">3. JSV & JSB (통합) 분석</button>
+        <button class="btn-factory" id="btn-JSP" onclick="switchFactory('JSP')">4. JSP 분석</button>
+        <button class="btn-factory" id="btn-JSJ" onclick="switchFactory('JSJ')">5. JSJ 분석</button>
     </div>
 
     <div class="grid-detail">
@@ -321,7 +329,7 @@
 </div>
 
 <div class="foot">
-    데이터 기준일: 2026년 05월 마감 Raw Data · 차트 내 백분율(%) 자동 표기 적용 통합 버전
+    데이터 기준일: 2026년 05월 마감 Raw Data · 데이터 라벨 및 Executive Summary 통합 적용 완료
 </div>
 
 <!-- Modal for KPIs -->
@@ -390,7 +398,7 @@
         }
     });
 
-    // Plugin 2: Universal Data Labels (Upgraded to include %)
+    // Plugin 2: Universal Data Labels
     const universalLabelsPlugin = {
         id: 'universalLabels',
         afterDatasetsDraw(chart) {
